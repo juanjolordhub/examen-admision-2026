@@ -3,281 +3,232 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Examen de Admisión 2026 — Carga de Preguntas</title>
+<title>Examen de Admisión 2026</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  /* ── VARIABLES ── */
   :root {
-    --bg: #ffffff;
-    --bg2: #f8f7f5;
-    --bg3: #f0efe9;
-    --border: rgba(0,0,0,0.10);
-    --border2: rgba(0,0,0,0.18);
-    --text: #1a1a1a;
-    --text2: #555;
-    --text3: #888;
-    --blue: #185FA5;
-    --blue-bg: #E6F1FB;
-    --green: #3B6D11;
-    --green-bg: #EAF3DE;
-    --amber: #854F0B;
-    --amber-bg: #FAEEDA;
-    --red: #A32D2D;
-    --red-bg: #FCEBEB;
-    --radius: 8px;
-    --radius-lg: 12px;
-    --shadow: 0 1px 4px rgba(0,0,0,0.08);
+    --bg:#ffffff; --bg2:#f8f7f5; --bg3:#f0efe9;
+    --border:rgba(0,0,0,0.10); --border2:rgba(0,0,0,0.20);
+    --text:#1a1a1a; --text2:#555; --text3:#999;
+    --blue:#185FA5; --blue-bg:#E6F1FB; --blue-dark:#0C447C;
+    --green:#3B6D11; --green-bg:#EAF3DE;
+    --amber:#854F0B; --amber-bg:#FAEEDA;
+    --red:#A32D2D; --red-bg:#FCEBEB;
+    --r:8px; --rl:12px;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg2); color: var(--text); min-height: 100vh; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg2);color:var(--text);min-height:100vh;}
 
-  /* ── LAYOUT ── */
-  .page { max-width: 780px; margin: 0 auto; padding: 2rem 1rem 4rem; }
-  .header { margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 0.5px solid var(--border); }
-  .header h1 { font-size: 20px; font-weight: 600; color: var(--text); }
-  .header p { font-size: 14px; color: var(--text2); margin-top: 4px; }
-  .logo-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-  .logo-icon { width: 40px; height: 40px; background: var(--blue); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .logo-icon svg { width: 22px; height: 22px; fill: white; }
-
-  /* ── CARDS ── */
-  .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
-  .card-title { font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
-
-  /* ── FORMS ── */
-  .field { margin-bottom: 14px; }
-  .field label { font-size: 13px; color: var(--text2); display: block; margin-bottom: 5px; }
-  .field .hint { font-size: 11px; color: var(--text3); margin-top: 4px; }
-  input[type=text], input[type=email], textarea, select {
-    width: 100%; padding: 8px 10px; font-size: 14px;
-    border: 0.5px solid var(--border2); border-radius: var(--radius);
-    background: var(--bg); color: var(--text); outline: none;
-    transition: border-color 0.15s;
+  /* ── LOGIN ── */
+  .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem;}
+  .login-box{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--rl);padding:2rem 2rem 1.75rem;width:100%;max-width:400px;}
+  .login-header{text-align:center;margin-bottom:1.75rem;}
+  .login-icon{width:52px;height:52px;background:var(--blue);border-radius:var(--r);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;}
+  .login-icon svg{width:26px;height:26px;fill:white;}
+  .login-title{font-size:18px;font-weight:700;margin-bottom:4px;}
+  .login-sub{font-size:13px;color:var(--text2);}
+  .field{margin-bottom:16px;}
+  .field label{font-size:13px;color:var(--text2);display:block;margin-bottom:5px;font-weight:500;}
+  select,input[type=password],input[type=text],input[type=email],textarea{
+    width:100%;padding:10px 12px;font-size:14px;border:0.5px solid var(--border2);
+    border-radius:var(--r);background:var(--bg);color:var(--text);outline:none;transition:border-color .15s;
   }
-  input:focus, textarea:focus, select:focus { border-color: var(--blue); }
-  textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
-  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  @media(max-width: 500px) { .row2 { grid-template-columns: 1fr; } }
+  select:focus,input:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(24,95,165,.1);}
+  textarea{resize:vertical;min-height:72px;line-height:1.5;}
+  .btn{padding:10px 20px;border-radius:var(--r);font-size:14px;font-weight:500;cursor:pointer;transition:all .12s;border:0.5px solid var(--border2);background:var(--bg);color:var(--text);}
+  .btn:hover{background:var(--bg2);}
+  .btn:active{transform:scale(.98);}
+  .btn-primary{background:var(--blue);color:#fff;border-color:var(--blue);width:100%;padding:11px;font-size:15px;font-weight:600;}
+  .btn-primary:hover{background:var(--blue-dark);border-color:var(--blue-dark);}
+  .btn-sm{padding:5px 12px;font-size:12px;}
+  .btn-add{width:100%;padding:10px;border:1.5px dashed var(--border2);background:transparent;border-radius:var(--r);font-size:13px;color:var(--text2);cursor:pointer;margin-bottom:12px;}
+  .btn-add:hover{background:var(--bg2);border-color:var(--blue);color:var(--blue);}
+  .alert{padding:11px 14px;border-radius:var(--r);font-size:13px;margin-bottom:1rem;line-height:1.4;}
+  .alert-success{background:var(--green-bg);color:var(--green);border:0.5px solid #97C459;}
+  .alert-error{background:var(--red-bg);color:var(--red);border:0.5px solid #F09595;}
+  .alert-info{background:var(--blue-bg);color:var(--blue);border:0.5px solid #85B7EB;}
+  .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
+  .badge-green{background:var(--green-bg);color:var(--green);}
+  .badge-amber{background:var(--amber-bg);color:var(--amber);}
+  .badge-blue{background:var(--blue-bg);color:var(--blue);}
+  .badge-gray{background:var(--bg3);color:var(--text2);}
+  .hidden{display:none!important;}
+  .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .loading-overlay{position:fixed;inset:0;background:rgba(248,247,245,.92);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--text2);z-index:200;}
 
-  /* ── ALTERNATIVAS ── */
-  .alt-list { display: flex; flex-direction: column; gap: 6px; }
-  .alt-row { display: flex; align-items: center; gap: 8px; }
-  .alt-letter {
-    width: 28px; height: 28px; border-radius: 50%;
-    background: var(--bg2); border: 0.5px solid var(--border2);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 600; color: var(--text2); flex-shrink: 0;
-  }
-  .alt-row input[type=text] { flex: 1; }
-  .alt-row.correct .alt-letter { background: var(--green-bg); border-color: #97C459; color: var(--green); }
+  /* ── PAGE ── */
+  .page{max-width:800px;margin:0 auto;padding:2rem 1rem 4rem;}
+  .topbar{display:flex;align-items:center;gap:12px;margin-bottom:1.75rem;padding-bottom:1rem;border-bottom:0.5px solid var(--border);}
+  .logo-icon{width:40px;height:40px;background:var(--blue);border-radius:var(--r);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .logo-icon svg{width:20px;height:20px;fill:white;}
+  .logo-icon.dark{background:#2C2C2A;}
+  .topbar-info{flex:1;}
+  .topbar-title{font-size:16px;font-weight:700;}
+  .topbar-sub{font-size:12px;color:var(--text2);margin-top:2px;}
+  .topbar-actions{display:flex;gap:8px;align-items:center;}
+  .logout-btn{font-size:12px;color:var(--text3);background:none;border:0.5px solid var(--border);border-radius:var(--r);padding:5px 11px;cursor:pointer;}
+  .logout-btn:hover{background:var(--bg3);}
+  .card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--rl);padding:1.25rem;margin-bottom:1rem;}
+  .card-title{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:500px){.row2{grid-template-columns:1fr;}}
 
-  /* ── RESPUESTA CORRECTA ── */
-  .radio-group { display: flex; gap: 8px; flex-wrap: wrap; }
-  .radio-opt { display: flex; align-items: center; gap: 5px; cursor: pointer; }
-  .radio-opt input[type=radio] { width: 14px; height: 14px; accent-color: var(--blue); }
-  .radio-opt span { font-size: 13px; color: var(--text2); }
+  /* ── ADMIN TABS ── */
+  .tabs{display:flex;gap:4px;margin-bottom:1.5rem;border-bottom:0.5px solid var(--border);}
+  .tab-btn{padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;background:none;border:none;border-bottom:2px solid transparent;color:var(--text2);margin-bottom:-0.5px;}
+  .tab-btn.active{color:var(--blue);border-bottom-color:var(--blue);}
+  .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem;}
+  @media(max-width:400px){.stat-grid{grid-template-columns:1fr 1fr;}}
+  .stat{background:var(--bg3);border-radius:var(--r);padding:.875rem;text-align:center;}
+  .stat .n{font-size:24px;font-weight:700;}
+  .stat .l{font-size:12px;color:var(--text2);margin-top:2px;}
 
-  /* ── IMAGEN ── */
-  .img-drop {
-    border: 1.5px dashed var(--border2); border-radius: var(--radius);
-    padding: 16px; text-align: center; cursor: pointer;
-    transition: background 0.15s; position: relative;
-  }
-  .img-drop:hover { background: var(--bg2); }
-  .img-drop input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-  .img-drop p { font-size: 13px; color: var(--text3); }
-  .img-drop .img-name { font-size: 12px; color: var(--blue); margin-top: 4px; }
-  .img-preview { max-width: 100%; max-height: 120px; margin-top: 8px; border-radius: var(--radius); border: 0.5px solid var(--border); }
+  /* ── PREGUNTAS ── */
+  .pregunta-bloque{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--rl);margin-bottom:12px;overflow:hidden;}
+  .pregunta-head{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:0.5px solid var(--border);background:var(--bg2);}
+  .pregunta-head .num{font-size:13px;font-weight:600;}
+  .pregunta-body{padding:16px;}
+  .btn-remove{background:none;border:none;cursor:pointer;font-size:15px;color:var(--text3);padding:3px 7px;border-radius:4px;}
+  .btn-remove:hover{background:var(--red-bg);color:var(--red);}
+  .alt-list{display:flex;flex-direction:column;gap:6px;}
+  .alt-row{display:flex;align-items:center;gap:8px;}
+  .alt-letter{width:28px;height:28px;border-radius:50%;background:var(--bg2);border:0.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--text2);flex-shrink:0;}
+  .alt-row input[type=text]{flex:1;}
+  .alt-row.correct .alt-letter{background:var(--green-bg);border-color:#97C459;color:var(--green);}
+  .radio-group{display:flex;gap:10px;flex-wrap:wrap;margin-top:2px;}
+  .radio-opt{display:flex;align-items:center;gap:5px;cursor:pointer;}
+  .radio-opt input[type=radio]{width:14px;height:14px;accent-color:var(--blue);}
+  .radio-opt span{font-size:13px;color:var(--text2);}
+  .img-drop{border:1.5px dashed var(--border2);border-radius:var(--r);padding:14px;text-align:center;cursor:pointer;position:relative;transition:background .15s;}
+  .img-drop:hover{background:var(--bg2);}
+  .img-drop input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+  .img-drop p{font-size:13px;color:var(--text3);}
+  .img-name{font-size:12px;color:var(--blue);margin-top:4px;}
+  .img-preview{max-width:100%;max-height:110px;margin-top:8px;border-radius:var(--r);border:0.5px solid var(--border);}
+  .btn-row{display:flex;gap:10px;justify-content:flex-end;margin-top:1.5rem;flex-wrap:wrap;}
 
-  /* ── PREGUNTA BLOQUE ── */
-  .pregunta-bloque { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 12px; overflow: hidden; }
-  .pregunta-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 0.5px solid var(--border); background: var(--bg2); }
-  .pregunta-head .num { font-size: 13px; font-weight: 600; color: var(--text); }
-  .pregunta-body { padding: 16px; }
-  .btn-remove { background: none; border: none; cursor: pointer; font-size: 16px; color: var(--text3); padding: 2px 6px; border-radius: 4px; }
-  .btn-remove:hover { background: var(--red-bg); color: var(--red); }
-
-  /* ── BOTONES ── */
-  .btn { padding: 9px 20px; border-radius: var(--radius); font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.12s; border: 0.5px solid var(--border2); background: var(--bg); color: var(--text); }
-  .btn:hover { background: var(--bg2); }
-  .btn-primary { background: var(--blue); color: white; border-color: var(--blue); }
-  .btn-primary:hover { background: #0C447C; border-color: #0C447C; }
-  .btn-add { width: 100%; padding: 10px; border: 1.5px dashed var(--border2); background: transparent; border-radius: var(--radius); font-size: 13px; color: var(--text2); cursor: pointer; }
-  .btn-add:hover { background: var(--bg2); border-color: var(--blue); color: var(--blue); }
-  .btn-row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 1.5rem; flex-wrap: wrap; }
-
-  /* ── BADGES ── */
-  .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-  .badge-green { background: var(--green-bg); color: var(--green); }
-  .badge-amber { background: var(--amber-bg); color: var(--amber); }
-  .badge-blue { background: var(--blue-bg); color: var(--blue); }
-  .badge-gray { background: var(--bg3); color: var(--text2); }
-
-  /* ── ALERTAS ── */
-  .alert { padding: 12px 16px; border-radius: var(--radius); font-size: 13px; margin-bottom: 1rem; }
-  .alert-success { background: var(--green-bg); color: var(--green); border: 0.5px solid #97C459; }
-  .alert-error { background: var(--red-bg); color: var(--red); border: 0.5px solid #F09595; }
-  .alert-info { background: var(--blue-bg); color: var(--blue); border: 0.5px solid #85B7EB; }
-
-  /* ── ADMIN ── */
-  .tabs { display: flex; gap: 6px; margin-bottom: 1.5rem; border-bottom: 0.5px solid var(--border); padding-bottom: 0; }
-  .tab-btn { padding: 8px 16px; font-size: 13px; font-weight: 500; cursor: pointer; background: none; border: none; border-bottom: 2px solid transparent; color: var(--text2); margin-bottom: -0.5px; }
-  .tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); }
-  .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.5rem; }
-  .stat { background: var(--bg3); border-radius: var(--radius); padding: 1rem; text-align: center; }
-  .stat .n { font-size: 26px; font-weight: 600; color: var(--text); }
-  .stat .l { font-size: 12px; color: var(--text2); margin-top: 2px; }
-  .q-row { padding: 12px; border: 0.5px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; }
-  .q-row-head { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 6px; }
-  .q-enunciado { font-size: 13px; flex: 1; color: var(--text); line-height: 1.4; }
-  .q-alts { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 16px; }
-  .q-alt { font-size: 12px; color: var(--text2); }
-  .q-alt.ok { color: var(--green); font-weight: 600; }
-  .docente-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 0.5px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; }
-  .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--blue-bg); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--blue); flex-shrink: 0; }
-  .docente-info { flex: 1; min-width: 0; }
-  .docente-name { font-size: 13px; font-weight: 600; color: var(--text); }
-  .docente-sub { font-size: 12px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .link-box { display: flex; align-items: center; gap: 8px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 6px 10px; margin-top: 6px; }
-  .link-text { font-size: 11px; font-family: monospace; color: var(--text2); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .copy-btn { font-size: 11px; padding: 3px 8px; border: 0.5px solid var(--border2); border-radius: 4px; background: var(--bg); cursor: pointer; white-space: nowrap; color: var(--text2); }
-  .copy-btn:hover { background: var(--blue-bg); color: var(--blue); }
-
-  /* ── SPINNER ── */
-  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* ── ESTADOS ── */
-  .hidden { display: none !important; }
-  .loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--text2); z-index: 100; }
-
-  /* ── CONFIG ── */
-  .config-panel { background: var(--bg); border: 1.5px solid var(--amber-bg); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.5rem; }
-  .config-panel h2 { font-size: 15px; font-weight: 600; color: var(--amber); margin-bottom: 4px; }
-  .config-panel p { font-size: 13px; color: var(--text2); margin-bottom: 12px; }
+  /* ── LISTA ADMIN ── */
+  .q-row{padding:12px;border:0.5px solid var(--border);border-radius:var(--r);margin-bottom:8px;}
+  .q-row-head{display:flex;gap:10px;align-items:flex-start;margin-bottom:6px;}
+  .q-enunciado{font-size:13px;flex:1;line-height:1.4;}
+  .q-alts{display:grid;grid-template-columns:1fr 1fr;gap:2px 16px;}
+  .q-alt{font-size:12px;color:var(--text2);}
+  .q-alt.ok{color:var(--green);font-weight:600;}
+  .area-label{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;padding-bottom:4px;border-bottom:0.5px solid var(--border);}
+  .user-row{display:flex;align-items:center;gap:12px;padding:10px 14px;border:0.5px solid var(--border);border-radius:var(--r);margin-bottom:8px;}
+  .avatar{width:36px;height:36px;border-radius:50%;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--blue);flex-shrink:0;}
+  .avatar.dir{background:#f0efe9;color:#2C2C2A;}
+  .user-info{flex:1;min-width:0;}
+  .user-name{font-size:13px;font-weight:600;}
+  .user-sub{font-size:12px;color:var(--text2);}
+  .divider{border:none;border-top:0.5px solid var(--border);margin:1rem 0;}
 </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════════ -->
-<!-- CONFIGURACIÓN INICIAL (solo primera vez)       -->
-<!-- ══════════════════════════════════════════════ -->
-<div id="config-screen" class="page hidden">
-  <div class="logo-bar">
-    <div class="logo-icon">
-      <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+<!-- ══════════ LOGIN ══════════ -->
+<div id="login-screen">
+  <div class="login-wrap">
+    <div class="login-box">
+      <div class="login-header">
+        <div class="login-icon">
+          <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        </div>
+        <div class="login-title">Examen de Admisión 2026</div>
+        <div class="login-sub">Sistema colaborativo de preguntas</div>
+      </div>
+      <div class="field">
+        <label>Selecciona tu nombre</label>
+        <select id="login-nombre">
+          <option value="">-- Elige tu nombre --</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" id="login-pass" placeholder="Ingresa tu contraseña" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div id="login-error" class="alert alert-error hidden"></div>
+      <button class="btn btn-primary" onclick="doLogin()">Ingresar</button>
     </div>
-    <div>
-      <div style="font-size:17px;font-weight:600;">Examen de Admisión 2026</div>
-      <div style="font-size:12px;color:var(--text2);">Configuración inicial</div>
-    </div>
-  </div>
-
-  <div class="config-panel">
-    <h2>Conectar con Supabase</h2>
-    <p>Ingresa tus credenciales de Supabase. Se guardarán en este navegador. Solo necesitas hacerlo una vez.</p>
-    <div class="field">
-      <label>URL del proyecto (Project URL)</label>
-      <input type="text" id="cfg-url" placeholder="https://xxxxxxxxxxxx.supabase.co">
-    </div>
-    <div class="field">
-      <label>Clave anon (anon key)</label>
-      <input type="text" id="cfg-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
-      <div class="hint">Supabase → Settings → API → Project API keys → anon public</div>
-    </div>
-    <div class="field">
-      <label>URL base de tu sitio web (para generar los enlaces)</label>
-      <input type="text" id="cfg-site" placeholder="https://mi-examen.netlify.app">
-    </div>
-    <div id="cfg-error" class="alert alert-error hidden"></div>
-    <button class="btn btn-primary" onclick="saveConfig()">Guardar y continuar</button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════ -->
-<!-- FORMULARIO DOCENTE                             -->
-<!-- ══════════════════════════════════════════════ -->
+<!-- ══════════ DOCENTE ══════════ -->
 <div id="docente-screen" class="page hidden">
-  <div class="logo-bar">
-    <div class="logo-icon">
-      <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+  <div class="topbar">
+    <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg></div>
+    <div class="topbar-info">
+      <div class="topbar-title">Examen de Admisión 2026</div>
+      <div class="topbar-sub" id="docente-subtitle">Carga de preguntas</div>
     </div>
-    <div>
-      <div style="font-size:17px;font-weight:600;">Examen de Admisión 2026</div>
-      <div style="font-size:12px;color:var(--text2);" id="docente-subtitle">Carga de preguntas</div>
+    <div class="topbar-actions">
+      <button class="logout-btn" onclick="cerrarSesion()">Salir</button>
     </div>
   </div>
-
   <div id="docente-alert" class="hidden"></div>
-
   <div class="card">
-    <div class="card-title">Datos del docente</div>
+    <div class="card-title">Datos</div>
     <div class="row2">
       <div class="field">
-        <label>Nombre completo</label>
-        <input type="text" id="doc-nombre" placeholder="Prof. Juan Pérez">
+        <label>Docente</label>
+        <input type="text" id="doc-nombre" readonly style="background:var(--bg2);color:var(--text2);">
       </div>
       <div class="field">
         <label>Área asignada</label>
         <input type="text" id="doc-area" readonly style="background:var(--bg2);color:var(--text2);">
       </div>
     </div>
-    <div class="field">
-      <label>Correo electrónico (opcional)</label>
-      <input type="email" id="doc-correo" placeholder="docente@escuela.edu.pe">
-    </div>
   </div>
-
   <div id="preguntas-container"></div>
-
-  <button class="btn-add" onclick="agregarPregunta()">+ Agregar pregunta</button>
-
+  <button class="btn-add" onclick="agregarPregunta()">+ Agregar otra pregunta</button>
   <div class="btn-row">
-    <button class="btn" onclick="previsualizarPreguntas()">Previsualizar</button>
-    <button class="btn btn-primary" id="btn-enviar" onclick="enviarPreguntas()">Enviar preguntas</button>
+    <button class="btn btn-primary" id="btn-enviar" onclick="enviarPreguntas()" style="width:auto;padding:10px 30px;">Enviar preguntas</button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════ -->
-<!-- ÉXITO                                          -->
-<!-- ══════════════════════════════════════════════ -->
-<div id="exito-screen" class="page hidden">
-  <div style="text-align:center; padding: 3rem 1rem;">
-    <div style="width:64px;height:64px;background:var(--green-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
-      <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="#3B6D11" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+<!-- ══════════ ÉXITO ══════════ -->
+<div id="exito-screen" class="hidden">
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;">
+    <div style="text-align:center;">
+      <div style="width:64px;height:64px;background:var(--green-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
+        <svg width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="#3B6D11" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+      </div>
+      <h2 style="font-size:20px;font-weight:700;color:var(--green);margin-bottom:8px;">Preguntas enviadas</h2>
+      <p style="font-size:14px;color:var(--text2);line-height:1.6;">Tus preguntas fueron registradas correctamente.<br>El director las revisará próximamente.</p>
+      <button class="btn" style="margin-top:1.5rem;" onclick="cerrarSesion()">Cerrar sesión</button>
     </div>
-    <h2 style="font-size:20px;font-weight:600;margin-bottom:8px;color:var(--green);">Preguntas enviadas</h2>
-    <p style="font-size:14px;color:var(--text2);">Tus preguntas fueron registradas correctamente.<br>El administrador las revisará próximamente.</p>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════ -->
-<!-- PANEL ADMINISTRADOR                            -->
-<!-- ══════════════════════════════════════════════ -->
+<!-- ══════════ DIRECTOR / ADMIN ══════════ -->
 <div id="admin-screen" class="page hidden">
-  <div class="logo-bar">
-    <div class="logo-icon" style="background:#2C2C2A;">
+  <div class="topbar">
+    <div class="logo-icon dark">
       <svg viewBox="0 0 24 24" fill="white"><path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 16a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z"/></svg>
     </div>
-    <div>
-      <div style="font-size:17px;font-weight:600;">Panel administrador</div>
-      <div style="font-size:12px;color:var(--text2);">Examen de Admisión 2026</div>
+    <div class="topbar-info">
+      <div class="topbar-title">Panel Director</div>
+      <div class="topbar-sub">Examen de Admisión 2026</div>
+    </div>
+    <div class="topbar-actions">
+      <button class="logout-btn" onclick="cerrarSesion()">Salir</button>
     </div>
   </div>
 
-  <div id="admin-stats" class="stat-grid">
+  <div class="stat-grid">
     <div class="stat"><div class="n" id="stat-docentes">—</div><div class="l">docentes</div></div>
     <div class="stat"><div class="n" id="stat-preguntas">—</div><div class="l">preguntas</div></div>
-    <div class="stat"><div class="n" id="stat-completos">—</div><div class="l">áreas completas</div></div>
+    <div class="stat"><div class="n" id="stat-areas">—</div><div class="l">áreas con preguntas</div></div>
   </div>
 
   <div class="tabs">
     <button class="tab-btn active" onclick="adminTab('preguntas')">Preguntas</button>
-    <button class="tab-btn" onclick="adminTab('docentes')">Docentes y enlaces</button>
-    <button class="tab-btn" onclick="adminTab('nuevo')">Agregar docente</button>
+    <button class="tab-btn" onclick="adminTab('usuarios')">Docentes</button>
+    <button class="tab-btn" onclick="adminTab('nuevo')">+ Nuevo docente</button>
   </div>
 
-  <!-- TAB PREGUNTAS -->
+  <!-- Tab preguntas -->
   <div id="tab-preguntas">
     <div class="field" style="margin-bottom:1rem;">
       <select id="filtro-area" onchange="filtrarPreguntas()">
@@ -287,12 +238,12 @@
     <div id="lista-preguntas"></div>
   </div>
 
-  <!-- TAB DOCENTES -->
-  <div id="tab-docentes" class="hidden">
-    <div id="lista-docentes"></div>
+  <!-- Tab usuarios -->
+  <div id="tab-usuarios" class="hidden">
+    <div id="lista-usuarios"></div>
   </div>
 
-  <!-- TAB NUEVO DOCENTE -->
+  <!-- Tab nuevo docente -->
   <div id="tab-nuevo" class="hidden">
     <div class="card">
       <div class="card-title">Registrar nuevo docente</div>
@@ -304,182 +255,168 @@
         <div class="field">
           <label>Área</label>
           <select id="nuevo-area">
-            <option>Lenguaje</option>
-            <option>Literatura</option>
-            <option>Plan Lector</option>
-            <option>Razonamiento Verbal</option>
-            <option>Aritmética</option>
-            <option>Álgebra</option>
-            <option>Geometría</option>
-            <option>Razonamiento Matemático</option>
-            <option>Física</option>
-            <option>Biología</option>
-            <option>Historia</option>
-            <option>Geografía</option>
-            <option>Inglés</option>
+            <option>Lenguaje</option><option>Literatura</option><option>Plan Lector</option>
+            <option>Razonamiento Verbal</option><option>Aritmética</option><option>Álgebra</option>
+            <option>Geometría</option><option>Razonamiento Matemático</option><option>Física</option>
+            <option>Biología</option><option>Historia</option><option>Geografía</option><option>Inglés</option>
           </select>
         </div>
       </div>
       <div class="field">
-        <label>Correo electrónico</label>
-        <input type="email" id="nuevo-correo" placeholder="docente@escuela.edu.pe">
+        <label>Contraseña para el docente</label>
+        <input type="text" id="nuevo-pass" placeholder="Ej: Docente2026">
+        <div style="font-size:11px;color:var(--text3);margin-top:4px;">El docente usará esta contraseña para ingresar.</div>
       </div>
       <div id="nuevo-alert" class="hidden"></div>
-      <button class="btn btn-primary" onclick="crearDocente()">Registrar y generar enlace</button>
+      <button class="btn btn-primary" onclick="crearDocente()">Registrar docente</button>
     </div>
   </div>
 </div>
 
-<!-- LOADING -->
 <div id="loading" class="loading-overlay hidden">Cargando...</div>
 
 <script>
-// ══════════════════════════════════════════════════
-// CONFIGURACIÓN
-// ══════════════════════════════════════════════════
-const ADMIN_TOKEN = 'ADMIN_2026'; // Cambia esto a algo secreto
+// ══ CONFIGURACIÓN ══
+const SB_URL = 'https://wpgooddmmzzjfvocwidp.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndwZ29vZGRtbXp6amZ2b2N3aWRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5Mzc4OTksImV4cCI6MjA5MTUxMzg5OX0.YNnKcte67kBAdQM60vhrhtaHugqlXuebuFdchYOAOHU';
+const SITE   = 'https://juanjolordhub.github.io/examen-admision-2026';
 
-let supabaseClient = null;
-let SITE_URL = '';
-let docenteActual = null;
-let preguntaCount = 0;
-let imageFiles = {};
-let allPreguntas = [];
-let allDocentes = [];
+const db = supabase.createClient(SB_URL, SB_KEY);
 
-function getConfig() {
-  return {
-    url: localStorage.getItem('sb_url'),
-    key: localStorage.getItem('sb_key'),
-    site: localStorage.getItem('sb_site') || window.location.origin
-  };
+let usuarioActual  = null;
+let preguntaCount  = 0;
+let imageFiles     = {};
+let allPreguntas   = [];
+let allUsuarios    = [];
+
+// ══ HASH SHA-256 (en el navegador, sin librerías) ══
+async function sha256(msg) {
+  const buf  = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
 
-function saveConfig() {
-  const url = document.getElementById('cfg-url').value.trim();
-  const key = document.getElementById('cfg-key').value.trim();
-  const site = document.getElementById('cfg-site').value.trim() || window.location.origin;
-  const errEl = document.getElementById('cfg-error');
-
-  if (!url || !key) {
-    errEl.textContent = 'Completa URL y clave antes de continuar.';
-    errEl.classList.remove('hidden');
-    return;
-  }
-  localStorage.setItem('sb_url', url);
-  localStorage.setItem('sb_key', key);
-  localStorage.setItem('sb_site', site);
-  location.reload();
-}
-
-function initSupabase() {
-  const cfg = getConfig();
-  if (!cfg.url || !cfg.key) return false;
-  supabaseClient = supabase.createClient(cfg.url, cfg.key);
-  SITE_URL = cfg.site;
-  return true;
-}
-
-// ══════════════════════════════════════════════════
-// ENRUTAMIENTO
-// ══════════════════════════════════════════════════
+// ══ INIT ══
 async function init() {
-  const ok = initSupabase();
-  const params = new URLSearchParams(window.location.search);
-  const token = params.get('token');
-  const admin = params.get('admin');
-
-  if (!ok) {
-    show('config-screen');
+  // Recuperar sesión
+  const sess = sessionStorage.getItem('usuario');
+  if (sess) {
+    usuarioActual = JSON.parse(sess);
+    if (usuarioActual.rol === 'director') { show('admin-screen'); await cargarAdmin(); }
+    else { mostrarFormularioDocente(); }
     return;
   }
+  // Cargar lista de usuarios para el desplegable
+  await cargarListaLogin();
+  show('login-screen');
+}
 
-  if (admin === ADMIN_TOKEN) {
-    show('admin-screen');
-    await cargarAdmin();
-    return;
-  }
-
-  if (token) {
-    await cargarDocente(token);
-    return;
-  }
-
-  show('config-screen');
+async function cargarListaLogin() {
+  const { data } = await db.from('usuarios').select('id,nombre,rol,area').eq('activo', true).order('nombre');
+  const sel = document.getElementById('login-nombre');
+  (data||[]).forEach(u => {
+    const opt = document.createElement('option');
+    opt.value = u.id;
+    opt.textContent = u.nombre + (u.rol === 'director' ? ' (Director)' : u.area ? ' — ' + u.area : '');
+    sel.appendChild(opt);
+  });
+  allUsuarios = data || [];
 }
 
 function show(id) {
-  ['config-screen','docente-screen','admin-screen','exito-screen'].forEach(s => {
-    document.getElementById(s).classList.add('hidden');
-  });
+  ['login-screen','docente-screen','admin-screen','exito-screen'].forEach(s =>
+    document.getElementById(s).classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
 }
 
-// ══════════════════════════════════════════════════
-// FORMULARIO DOCENTE
-// ══════════════════════════════════════════════════
-async function cargarDocente(token) {
+// ══ LOGIN ══
+async function doLogin() {
+  const uid  = document.getElementById('login-nombre').value;
+  const pass = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-error');
+  errEl.classList.add('hidden');
+
+  if (!uid)  { errEl.textContent='Selecciona tu nombre.'; errEl.classList.remove('hidden'); return; }
+  if (!pass) { errEl.textContent='Ingresa tu contraseña.'; errEl.classList.remove('hidden'); return; }
+
   setLoading(true);
-  const { data, error } = await supabaseClient
-    .from('docentes')
-    .select('*')
-    .eq('token', token)
-    .single();
+  const hash = await sha256(pass);
+  const { data, error } = await db.from('usuarios')
+    .select('*').eq('id', uid).eq('password_hash', hash).eq('activo', true).single();
   setLoading(false);
 
   if (error || !data) {
-    show('config-screen');
-    document.getElementById('cfg-error').textContent = 'Enlace inválido o expirado. Contacta al administrador.';
-    document.getElementById('cfg-error').classList.remove('hidden');
-    document.getElementById('config-screen').classList.remove('hidden');
-    document.querySelector('.config-panel').style.display = 'none';
+    errEl.textContent = 'Contraseña incorrecta. Intenta nuevamente.';
+    errEl.classList.remove('hidden');
     return;
   }
 
-  docenteActual = data;
-  document.getElementById('doc-nombre').value = data.nombre;
-  document.getElementById('doc-area').value = data.area;
-  document.getElementById('docente-subtitle').textContent = 'Área: ' + data.area;
+  usuarioActual = data;
+  sessionStorage.setItem('usuario', JSON.stringify(data));
+
+  if (data.rol === 'director') {
+    show('admin-screen');
+    await cargarAdmin();
+  } else {
+    mostrarFormularioDocente();
+  }
+}
+
+function cerrarSesion() {
+  sessionStorage.removeItem('usuario');
+  usuarioActual = null;
+  preguntaCount = 0;
+  imageFiles = {};
+  document.getElementById('preguntas-container').innerHTML = '';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-nombre').value = '';
+  document.getElementById('login-error').classList.add('hidden');
+  show('login-screen');
+}
+
+// ══ FORMULARIO DOCENTE ══
+function mostrarFormularioDocente() {
+  document.getElementById('doc-nombre').value = usuarioActual.nombre;
+  document.getElementById('doc-area').value   = usuarioActual.area || '';
+  document.getElementById('docente-subtitle').textContent = 'Área: ' + (usuarioActual.area || '');
   show('docente-screen');
-  agregarPregunta();
+  if (preguntaCount === 0) agregarPregunta();
 }
 
 function agregarPregunta() {
   preguntaCount++;
-  const id = preguntaCount;
-  const container = document.getElementById('preguntas-container');
+  const id  = preguntaCount;
   const div = document.createElement('div');
   div.className = 'pregunta-bloque';
   div.id = 'pregunta-' + id;
   div.innerHTML = `
     <div class="pregunta-head">
       <span class="num">Pregunta ${id}</span>
-      ${id > 1 ? `<button class="btn-remove" onclick="eliminarPregunta(${id})" title="Eliminar">✕</button>` : ''}
+      ${id > 1 ? `<button class="btn-remove" onclick="eliminarPregunta(${id})">✕</button>` : ''}
     </div>
     <div class="pregunta-body">
       <div class="field">
         <label>Enunciado</label>
-        <textarea id="p${id}-enunciado" placeholder="Escribe aquí el enunciado completo de la pregunta..."></textarea>
+        <textarea id="p${id}-enunciado" placeholder="Escribe el enunciado completo de la pregunta..."></textarea>
       </div>
       <div class="field">
-        <label>Imagen de apoyo (opcional)</label>
-        <div class="img-drop" id="drop-${id}">
-          <input type="file" accept="image/*,.wmf,.png,.jpg,.jpeg,.gif" onchange="onFileChange(${id}, this)">
+        <label>Imagen de apoyo <span style="font-weight:400;color:var(--text3)">(opcional)</span></label>
+        <div class="img-drop">
+          <input type="file" accept="image/*,.png,.jpg,.jpeg,.gif" onchange="onFileChange(${id},this)">
           <p>Haz clic o arrastra una imagen aquí</p>
-          <p style="font-size:11px;margin-top:2px;color:var(--text3);">PNG, JPG, GIF — máx. 5MB</p>
+          <p style="font-size:11px;margin-top:2px;">PNG, JPG, GIF</p>
           <div class="img-name hidden" id="fname-${id}"></div>
           <img class="img-preview hidden" id="fimg-${id}">
         </div>
       </div>
       <div class="field">
         <label>Alternativas</label>
-        <div class="alt-list" id="alts-${id}">
-          ${['a','b','c','d'].map(l => `
-            <div class="alt-row" id="alt-row-${id}-${l}">
+        <div class="alt-list">
+          ${['a','b','c','d'].map(l=>`
+            <div class="alt-row" id="arow-${id}-${l}">
               <div class="alt-letter">${l.toUpperCase()}</div>
               <input type="text" id="p${id}-alt-${l}" placeholder="Alternativa ${l.toUpperCase()}">
             </div>`).join('')}
-          <div class="alt-row" id="alt-row-${id}-e" style="opacity:0.6">
+          <div class="alt-row" id="arow-${id}-e" style="opacity:.55">
             <div class="alt-letter">E</div>
             <input type="text" id="p${id}-alt-e" placeholder="Alternativa E (opcional)">
           </div>
@@ -487,21 +424,20 @@ function agregarPregunta() {
       </div>
       <div class="field">
         <label>Respuesta correcta</label>
-        <div class="radio-group" id="radio-${id}">
-          ${['a','b','c','d','e'].map(l => `
+        <div class="radio-group">
+          ${['a','b','c','d','e'].map(l=>`
             <label class="radio-opt">
-              <input type="radio" name="correct-${id}" value="${l}" onchange="marcarCorrecta(${id},'${l}')">
+              <input type="radio" name="cor-${id}" value="${l}" onchange="marcarCorrecta(${id},'${l}')">
               <span>${l.toUpperCase()}</span>
             </label>`).join('')}
         </div>
       </div>
-    </div>
-  `;
-  container.appendChild(div);
+    </div>`;
+  document.getElementById('preguntas-container').appendChild(div);
 }
 
 function eliminarPregunta(id) {
-  document.getElementById('pregunta-' + id).remove();
+  document.getElementById('pregunta-'+id).remove();
   delete imageFiles[id];
 }
 
@@ -509,260 +445,186 @@ function onFileChange(id, input) {
   const file = input.files[0];
   if (!file) return;
   imageFiles[id] = file;
-  document.getElementById('fname-' + id).textContent = file.name;
-  document.getElementById('fname-' + id).classList.remove('hidden');
-
+  const fn = document.getElementById('fname-'+id);
+  fn.textContent = file.name; fn.classList.remove('hidden');
   if (file.type.startsWith('image/')) {
-    const reader = new FileReader();
-    reader.onload = e => {
-      const img = document.getElementById('fimg-' + id);
-      img.src = e.target.result;
-      img.classList.remove('hidden');
-    };
-    reader.readAsDataURL(file);
+    const r = new FileReader();
+    r.onload = e => { const img=document.getElementById('fimg-'+id); img.src=e.target.result; img.classList.remove('hidden'); };
+    r.readAsDataURL(file);
   }
 }
 
-function marcarCorrecta(pregId, letra) {
+function marcarCorrecta(pid, letra) {
   ['a','b','c','d','e'].forEach(l => {
-    const row = document.getElementById(`alt-row-${pregId}-${l}`);
-    if (row) row.classList.toggle('correct', l === letra);
+    const row = document.getElementById(`arow-${pid}-${l}`);
+    if (row) row.classList.toggle('correct', l===letra);
   });
-}
-
-function previsualizarPreguntas() {
-  const preguntas = recopilarPreguntas();
-  if (!preguntas) return;
-  alert(`Preguntas listas: ${preguntas.length}\n\n` + preguntas.map((p,i) => `${i+1}. ${p.enunciado.substring(0,60)}...`).join('\n'));
 }
 
 function recopilarPreguntas() {
   const bloques = document.querySelectorAll('.pregunta-bloque');
-  const preguntas = [];
-  let errores = [];
-
-  bloques.forEach((bloque, i) => {
-    const id = bloque.id.replace('pregunta-', '');
-    const enunciado = document.getElementById(`p${id}-enunciado`).value.trim();
-    const a = document.getElementById(`p${id}-alt-a`).value.trim();
-    const b = document.getElementById(`p${id}-alt-b`).value.trim();
-    const c = document.getElementById(`p${id}-alt-c`).value.trim();
-    const d = document.getElementById(`p${id}-alt-d`).value.trim();
-    const e = document.getElementById(`p${id}-alt-e`)?.value.trim() || '';
-    const correcta = document.querySelector(`input[name="correct-${id}"]:checked`)?.value;
-
-    if (!enunciado) errores.push(`Pregunta ${i+1}: falta el enunciado`);
-    if (!a || !b || !c || !d) errores.push(`Pregunta ${i+1}: completa al menos 4 alternativas`);
-    if (!correcta) errores.push(`Pregunta ${i+1}: selecciona la respuesta correcta`);
-
-    preguntas.push({ id, enunciado, a, b, c, d, e, correcta });
+  const out=[]; const err=[];
+  bloques.forEach((b,i)=>{
+    const id=b.id.replace('pregunta-','');
+    const enunciado=document.getElementById(`p${id}-enunciado`).value.trim();
+    const a=document.getElementById(`p${id}-alt-a`).value.trim();
+    const bv=document.getElementById(`p${id}-alt-b`).value.trim();
+    const c=document.getElementById(`p${id}-alt-c`).value.trim();
+    const d=document.getElementById(`p${id}-alt-d`).value.trim();
+    const e=document.getElementById(`p${id}-alt-e`)?.value.trim()||'';
+    const correcta=document.querySelector(`input[name="cor-${id}"]:checked`)?.value;
+    if (!enunciado) err.push(`Pregunta ${i+1}: falta enunciado`);
+    if (!a||!bv||!c||!d) err.push(`Pregunta ${i+1}: completa las 4 alternativas`);
+    if (!correcta) err.push(`Pregunta ${i+1}: marca la respuesta correcta`);
+    out.push({id,enunciado,a,b:bv,c,d,e,correcta});
   });
-
-  if (errores.length) {
-    showAlert('docente-alert', 'error', errores.join('\n'));
-    return null;
-  }
-  return preguntas;
+  if (err.length) { showAlert('docente-alert','error',err.join(' · ')); return null; }
+  return out;
 }
 
 async function enviarPreguntas() {
-  const nombre = document.getElementById('doc-nombre').value.trim();
-  if (!nombre) { showAlert('docente-alert', 'error', 'Escribe tu nombre completo.'); return; }
-
   const preguntas = recopilarPreguntas();
   if (!preguntas) return;
-
   const btn = document.getElementById('btn-enviar');
-  btn.innerHTML = '<span class="spinner"></span>Enviando...';
-  btn.disabled = true;
-
+  btn.innerHTML='<span class="spinner"></span>Enviando...'; btn.disabled=true;
   try {
-    // Actualizar nombre del docente
-    await supabaseClient.from('docentes').update({ nombre }).eq('id', docenteActual.id);
-
-    // Subir preguntas e imágenes
-    for (let i = 0; i < preguntas.length; i++) {
-      const p = preguntas[i];
-      let imagen_url = null;
-
+    for (let i=0;i<preguntas.length;i++) {
+      const p=preguntas[i]; let imagen_url=null;
       if (imageFiles[p.id]) {
-        const file = imageFiles[p.id];
-        const fname = `${docenteActual.id}/${Date.now()}_${file.name}`;
-        const { data: upl, error: uplErr } = await supabaseClient.storage
-          .from('imagenes-preguntas')
-          .upload(fname, file, { upsert: true });
+        const file=imageFiles[p.id];
+        const fname=`${usuarioActual.id}/${Date.now()}_${file.name}`;
+        const {error:uplErr}=await db.storage.from('imagenes-preguntas').upload(fname,file,{upsert:true});
         if (!uplErr) {
-          const { data: { publicUrl } } = supabaseClient.storage
-            .from('imagenes-preguntas').getPublicUrl(fname);
-          imagen_url = publicUrl;
+          const {data:{publicUrl}}=db.storage.from('imagenes-preguntas').getPublicUrl(fname);
+          imagen_url=publicUrl;
         }
       }
-
-      await supabaseClient.from('preguntas').insert({
-        docente_id: docenteActual.id,
-        area: docenteActual.area,
-        enunciado: p.enunciado,
-        alternativa_a: p.a,
-        alternativa_b: p.b,
-        alternativa_c: p.c,
-        alternativa_d: p.d,
-        alternativa_e: p.e || null,
-        respuesta_correcta: p.correcta,
-        tiene_imagen: !!imagen_url,
-        imagen_url,
-        orden: i + 1
+      await db.from('preguntas').insert({
+        usuario_id:usuarioActual.id, area:usuarioActual.area,
+        enunciado:p.enunciado, alternativa_a:p.a, alternativa_b:p.b,
+        alternativa_c:p.c, alternativa_d:p.d, alternativa_e:p.e||null,
+        respuesta_correcta:p.correcta, tiene_imagen:!!imagen_url, imagen_url, orden:i+1
       });
     }
     show('exito-screen');
-  } catch (err) {
-    showAlert('docente-alert', 'error', 'Error al enviar: ' + err.message);
-    btn.innerHTML = 'Enviar preguntas';
-    btn.disabled = false;
+  } catch(err) {
+    showAlert('docente-alert','error','Error al enviar: '+err.message);
+    btn.innerHTML='Enviar preguntas'; btn.disabled=false;
   }
 }
 
-// ══════════════════════════════════════════════════
-// PANEL ADMINISTRADOR
-// ══════════════════════════════════════════════════
+// ══ ADMIN ══
 async function cargarAdmin() {
   setLoading(true);
-  const [{ data: docs }, { data: pregs }] = await Promise.all([
-    supabaseClient.from('docentes').select('*').order('area'),
-    supabaseClient.from('preguntas').select('*').order('area,orden')
+  const [{data:docs},{data:pregs}] = await Promise.all([
+    db.from('usuarios').select('*').eq('rol','docente').order('area'),
+    db.from('preguntas').select('*').order('area,orden')
   ]);
   setLoading(false);
-
-  allDocentes = docs || [];
-  allPreguntas = pregs || [];
-
-  // Stats
-  const areasConPreguntas = [...new Set(pregs?.map(p => p.area) || [])];
-  document.getElementById('stat-docentes').textContent = allDocentes.length;
+  allUsuarios  = docs||[];
+  allPreguntas = pregs||[];
+  const areas  = [...new Set(allPreguntas.map(p=>p.area))];
+  document.getElementById('stat-docentes').textContent  = allUsuarios.length;
   document.getElementById('stat-preguntas').textContent = allPreguntas.length;
-  document.getElementById('stat-completos').textContent = areasConPreguntas.length;
-
-  // Filtro de áreas
+  document.getElementById('stat-areas').textContent     = areas.length;
   const filtro = document.getElementById('filtro-area');
-  const areas = [...new Set(allPreguntas.map(p => p.area))].sort();
-  areas.forEach(a => {
-    const opt = document.createElement('option');
-    opt.value = a;
-    opt.textContent = a;
-    filtro.appendChild(opt);
-  });
-
+  filtro.innerHTML = '<option value="">Todas las áreas</option>';
+  areas.sort().forEach(a=>{ const o=document.createElement('option'); o.value=a; o.textContent=a; filtro.appendChild(o); });
   renderPreguntas(allPreguntas);
-  renderDocentes(allDocentes, allPreguntas);
+  renderUsuarios(allUsuarios, allPreguntas);
 }
 
 function filtrarPreguntas() {
-  const area = document.getElementById('filtro-area').value;
-  const filtered = area ? allPreguntas.filter(p => p.area === area) : allPreguntas;
-  renderPreguntas(filtered);
+  const area=document.getElementById('filtro-area').value;
+  renderPreguntas(area?allPreguntas.filter(p=>p.area===area):allPreguntas);
 }
 
 function renderPreguntas(preguntas) {
-  const el = document.getElementById('lista-preguntas');
-  if (!preguntas.length) { el.innerHTML = '<p style="color:var(--text3);font-size:13px;">Sin preguntas aún.</p>'; return; }
-
-  const porArea = {};
-  preguntas.forEach(p => { if (!porArea[p.area]) porArea[p.area] = []; porArea[p.area].push(p); });
-
-  el.innerHTML = Object.entries(porArea).map(([area, qs]) => `
+  const el=document.getElementById('lista-preguntas');
+  if (!preguntas.length){el.innerHTML='<p style="color:var(--text3);font-size:13px;padding:1rem 0;">Sin preguntas aún.</p>';return;}
+  const porArea={};
+  preguntas.forEach(p=>{if(!porArea[p.area])porArea[p.area]=[];porArea[p.area].push(p);});
+  el.innerHTML=Object.entries(porArea).map(([area,qs])=>`
     <div style="margin-bottom:1.5rem;">
-      <div style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;padding-bottom:4px;border-bottom:0.5px solid var(--border);">${area} (${qs.length})</div>
-      ${qs.map((q,i) => `
+      <div class="area-label">${area} · ${qs.length} pregunta${qs.length!==1?'s':''}</div>
+      ${qs.map((q,i)=>`
         <div class="q-row">
           <div class="q-row-head">
             <span style="font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap;">P.${i+1}</span>
             <div class="q-enunciado">${q.enunciado}</div>
-            <span class="badge badge-${q.estado === 'aprobada' ? 'green' : q.estado === 'rechazada' ? 'gray' : 'blue'}">${q.estado}</span>
+            <span class="badge badge-${q.estado==='aprobada'?'green':q.estado==='rechazada'?'gray':'blue'}">${q.estado}</span>
           </div>
-          ${q.imagen_url ? `<img src="${q.imagen_url}" style="max-height:80px;border-radius:4px;margin-bottom:6px;border:0.5px solid var(--border);">` : ''}
+          ${q.imagen_url?`<img src="${q.imagen_url}" style="max-height:80px;border-radius:4px;margin-bottom:6px;border:0.5px solid var(--border);">` :''}
           <div class="q-alts">
-            ${['a','b','c','d','e'].filter(l => q['alternativa_'+l]).map(l => `
-              <div class="q-alt ${l === q.respuesta_correcta ? 'ok' : ''}">${l.toUpperCase()}) ${q['alternativa_'+l]}${l === q.respuesta_correcta ? ' ✓' : ''}</div>
-            `).join('')}
+            ${['a','b','c','d','e'].filter(l=>q['alternativa_'+l]).map(l=>`
+              <div class="q-alt ${l===q.respuesta_correcta?'ok':''}">${l.toUpperCase()}) ${q['alternativa_'+l]}${l===q.respuesta_correcta?' ✓':''}</div>`).join('')}
           </div>
         </div>`).join('')}
     </div>`).join('');
 }
 
-function renderDocentes(docentes, preguntas) {
-  const el = document.getElementById('lista-docentes');
-  const pregsPorDocente = {};
-  preguntas.forEach(p => { if (!pregsPorDocente[p.docente_id]) pregsPorDocente[p.docente_id] = 0; pregsPorDocente[p.docente_id]++; });
-
-  el.innerHTML = docentes.map(d => {
-    const initials = d.nombre.split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
-    const nPregs = pregsPorDocente[d.id] || 0;
-    const link = `${SITE_URL}/?token=${d.token}`;
-    return `
-      <div class="docente-row">
-        <div class="avatar">${initials}</div>
-        <div class="docente-info">
-          <div class="docente-name">${d.nombre}</div>
-          <div class="docente-sub">${d.area} · ${nPregs} pregunta${nPregs !== 1 ? 's' : ''} enviada${nPregs !== 1 ? 's' : ''}</div>
-          <div class="link-box">
-            <span class="link-text">${link}</span>
-            <button class="copy-btn" onclick="copiarLink('${link}', this)">Copiar</button>
-          </div>
-        </div>
-        <span class="badge badge-${nPregs > 0 ? 'green' : 'amber'}">${nPregs > 0 ? 'Enviado' : 'Pendiente'}</span>
-      </div>`;
+function renderUsuarios(usuarios, preguntas) {
+  const el=document.getElementById('lista-usuarios');
+  const cnt={};
+  preguntas.forEach(p=>{cnt[p.usuario_id]=(cnt[p.usuario_id]||0)+1;});
+  if (!usuarios.length){el.innerHTML='<p style="color:var(--text3);font-size:13px;padding:1rem 0;">No hay docentes registrados aún.</p>';return;}
+  el.innerHTML=usuarios.map(u=>{
+    const ini=u.nombre.split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+    const n=cnt[u.id]||0;
+    return `<div class="user-row">
+      <div class="avatar">${ini}</div>
+      <div class="user-info">
+        <div class="user-name">${u.nombre}</div>
+        <div class="user-sub">${u.area||''} · ${n} pregunta${n!==1?'s':''} enviada${n!==1?'s':''}</div>
+      </div>
+      <span class="badge badge-${n>0?'green':'amber'}">${n>0?'Enviado':'Pendiente'}</span>
+    </div>`;
   }).join('');
 }
 
 async function crearDocente() {
-  const nombre = document.getElementById('nuevo-nombre').value.trim();
-  const area = document.getElementById('nuevo-area').value;
-  const correo = document.getElementById('nuevo-correo').value.trim();
-  const alertEl = document.getElementById('nuevo-alert');
-
-  if (!nombre) { showAlert('nuevo-alert', 'error', 'Ingresa el nombre del docente.'); return; }
-
-  const { data, error } = await supabaseClient.from('docentes').insert({ nombre, area, correo }).select().single();
-  if (error) { showAlert('nuevo-alert', 'error', 'Error: ' + error.message); return; }
-
-  showAlert('nuevo-alert', 'success', `Docente creado. Enlace: ${SITE_URL}/?token=${data.token}`);
-  document.getElementById('nuevo-nombre').value = '';
-  document.getElementById('nuevo-correo').value = '';
-  allDocentes.push(data);
-  renderDocentes(allDocentes, allPreguntas);
+  const nombre=document.getElementById('nuevo-nombre').value.trim();
+  const area  =document.getElementById('nuevo-area').value;
+  const pass  =document.getElementById('nuevo-pass').value.trim();
+  if (!nombre){showAlert('nuevo-alert','error','Ingresa el nombre del docente.');return;}
+  if (!pass)  {showAlert('nuevo-alert','error','Define una contraseña para el docente.');return;}
+  setLoading(true);
+  const hash=await sha256(pass);
+  const {data,error}=await db.from('usuarios').insert({nombre,rol:'docente',area,password_hash:hash}).select().single();
+  setLoading(false);
+  if (error){showAlert('nuevo-alert','error','Error: '+error.message);return;}
+  showAlert('nuevo-alert','success',`Docente "${nombre}" registrado. Contraseña: ${pass}`);
+  document.getElementById('nuevo-nombre').value='';
+  document.getElementById('nuevo-pass').value='';
+  allUsuarios.push(data);
+  renderUsuarios(allUsuarios, allPreguntas);
+  // Actualizar desplegable de login
+  const sel=document.getElementById('login-nombre');
+  const opt=document.createElement('option');
+  opt.value=data.id;
+  opt.textContent=data.nombre+' — '+data.area;
+  sel.appendChild(opt);
 }
 
 function adminTab(name) {
-  ['preguntas','docentes','nuevo'].forEach(t => {
-    document.getElementById('tab-' + t).classList.add('hidden');
-    document.querySelectorAll('.tab-btn')[['preguntas','docentes','nuevo'].indexOf(t)].classList.remove('active');
+  ['preguntas','usuarios','nuevo'].forEach((t,i)=>{
+    document.getElementById('tab-'+t).classList.add('hidden');
+    document.querySelectorAll('.tab-btn')[i].classList.remove('active');
   });
-  document.getElementById('tab-' + name).classList.remove('hidden');
-  document.querySelectorAll('.tab-btn')[['preguntas','docentes','nuevo'].indexOf(name)].classList.add('active');
+  const idx=['preguntas','usuarios','nuevo'].indexOf(name);
+  document.getElementById('tab-'+name).classList.remove('hidden');
+  document.querySelectorAll('.tab-btn')[idx].classList.add('active');
 }
 
-// ══════════════════════════════════════════════════
-// UTILIDADES
-// ══════════════════════════════════════════════════
-function copiarLink(link, btn) {
-  navigator.clipboard.writeText(link).then(() => {
-    btn.textContent = '¡Copiado!';
-    setTimeout(() => btn.textContent = 'Copiar', 2000);
-  });
+function showAlert(elId,type,msg) {
+  const el=document.getElementById(elId);
+  el.className=`alert alert-${type==='error'?'error':type==='success'?'success':'info'}`;
+  el.textContent=msg; el.classList.remove('hidden');
+  if(type!=='success') setTimeout(()=>el.classList.add('hidden'),6000);
 }
 
-function showAlert(elId, type, msg) {
-  const el = document.getElementById(elId);
-  el.className = `alert alert-${type === 'error' ? 'error' : type === 'success' ? 'success' : 'info'}`;
-  el.textContent = msg;
-  el.classList.remove('hidden');
-  setTimeout(() => el.classList.add('hidden'), 6000);
-}
+function setLoading(v){document.getElementById('loading').classList.toggle('hidden',!v);}
 
-function setLoading(v) {
-  document.getElementById('loading').classList.toggle('hidden', !v);
-}
-
-// Arrancar
 init();
 </script>
 </body>
