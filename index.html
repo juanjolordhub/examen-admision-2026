@@ -203,8 +203,19 @@
   <div id="preguntas-container"></div>
   <button class="btn-add" onclick="agregarPregunta()">+ Agregar otra pregunta</button>
   <div class="btn-row">
+    <button class="btn" onclick="verMisPreguntas()">Ver mis preguntas enviadas</button>
     <button class="btn btn-primary" id="btn-enviar" onclick="enviarPreguntas()" style="width:auto;padding:10px 30px;">Enviar preguntas</button>
   </div>
+</div>
+
+<!-- MIS PREGUNTAS -->
+<div id="mis-preguntas-screen" class="page hidden">
+  <div class="topbar">
+    <div class="t-icon" style="background:var(--blue)"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg></div>
+    <div class="t-info"><div class="t-title" id="mis-p-nombre"></div><div class="t-sub">Mis preguntas enviadas</div></div>
+    <button class="logout-btn" onclick="volverFormulario()">Volver</button>
+  </div>
+  <div id="mis-preguntas-lista"></div>
 </div>
 
 <!-- ÉXITO -->
@@ -334,7 +345,7 @@ async function cargarLoginList(){
 }
 
 function show(id){
-  ['login-screen','docente-screen','admin-screen','exito-screen'].forEach(s=>
+  ['login-screen','docente-screen','admin-screen','exito-screen','mis-preguntas-screen'].forEach(s=>
     document.getElementById(s).classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
 }
@@ -584,18 +595,32 @@ function renderPreguntas(preguntas){
   el.innerHTML=Object.entries(tree).map(([nivel,grados])=>`
     <div style="margin-bottom:1.5rem;">
       <div class="nivel-bar ${nivel==='primaria'?'prim':'sec'}">${nivel==='primaria'?'Primaria':'Secundaria'}</div>
-      ${Object.entries(grados).map(([grado,areas])=>`
-        <div style="margin-bottom:1rem;margin-left:4px;">
-          <div class="sec-label">${grado} · ${Object.values(areas).flat().length} preguntas</div>
-          ${Object.entries(areas).map(([area,qs])=>`
-            <div style="margin-bottom:10px;">
-              <div style="font-size:12px;font-weight:600;color:var(--blue);margin-bottom:4px;">${area}</div>
+      ${Object.entries(grados).map(([grado,areas])=>{
+        const gradoIds=Object.values(areas).flat().map(q=>q.id);
+        return `<div style="margin-bottom:1rem;margin-left:4px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <div class="sec-label" style="margin:0;">${grado} (${Object.values(areas).flat().length} preg.)</div>
+            <button onclick="elimGrupo([${gradoIds.map(id=>"'"+id+"'").join(',')}],'${grado}')"
+              style="font-size:11px;padding:3px 10px;border:0.5px solid var(--red);border-radius:20px;background:none;color:var(--red);cursor:pointer;white-space:nowrap;">
+              Eliminar grado
+            </button>
+          </div>
+          ${Object.entries(areas).map(([area,qs])=>{
+            const areaIds=qs.map(q=>q.id);
+            return `<div style="margin-bottom:12px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+                <div style="font-size:12px;font-weight:600;color:var(--blue);">${area}</div>
+                <button onclick="elimGrupo([${areaIds.map(id=>"'"+id+"'").join(',')}],'${area} de ${grado}')"
+                  style="font-size:11px;padding:2px 8px;border:0.5px solid var(--border2);border-radius:20px;background:none;color:var(--text3);cursor:pointer;">
+                  Eliminar área
+                </button>
+              </div>
               ${qs.map((q,i)=>`
-                <div class="q-row">
+                <div class="q-row" id="qrow-${q.id}">
                   <div class="q-head">
                     <span style="font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap;">P.${i+1}</span>
                     <div class="q-txt">${q.enunciado}</div>
-                    <span class="badge badge-${q.estado==='aprobada'?'green':'blue'}">${q.estado}</span>
+                    <button onclick="elimPregunta('${q.id}')" class="btn-remove" title="Eliminar">✕</button>
                   </div>
                   ${q.imagen_url?`<img src="${q.imagen_url}" style="max-height:70px;border-radius:4px;margin-bottom:4px;border:0.5px solid var(--border);">`:''}
                   <div class="q-alts">
@@ -603,9 +628,39 @@ function renderPreguntas(preguntas){
                       <div class="q-alt ${l===q.respuesta_correcta?'ok':''}">${l.toUpperCase()}) ${q['alternativa_'+l]}${l===q.respuesta_correcta?' ✓':''}</div>`).join('')}
                   </div>
                 </div>`).join('')}
-            </div>`).join('')}
-        </div>`).join('')}
+            </div>`;
+          }).join('')}
+        </div>`;
+      }).join('')}
     </div>`).join('');
+}
+
+async function elimPregunta(id){
+  if(!confirm('¿Eliminar esta pregunta?'))return;
+  const{error}=await db.from('preguntas').delete().eq('id',id);
+  if(error){alert('Error al eliminar: '+error.message);return;}
+  allPreguntas=allPreguntas.filter(p=>p.id!==id);
+  document.getElementById('qrow-'+id)?.remove();
+  actualizarStats();
+}
+
+async function elimGrupo(ids,nombre){
+  if(!confirm('¿Eliminar todas las preguntas de "'+nombre+'"?\n\nEsta acción no se puede deshacer.'))return;
+  setLoading(true);
+  const{error}=await db.from('preguntas').delete().in('id',ids);
+  setLoading(false);
+  if(error){alert('Error: '+error.message);return;}
+  allPreguntas=allPreguntas.filter(p=>!ids.includes(p.id));
+  filtrarP();
+  actualizarStats();
+}
+
+function actualizarStats(){
+  const grados=[...new Set(allPreguntas.map(p=>p.grado).filter(Boolean))];
+  document.getElementById('stat-preg').textContent=allPreguntas.length;
+  document.getElementById('stat-grados').textContent=grados.length;
+  const gg=document.getElementById('gen-grado');
+  if(gg){gg.innerHTML='<option value="">-- Elige un grado --</option>';grados.sort().forEach(g=>{const o=document.createElement('option');o.value=g;o.textContent=g;gg.appendChild(o);});}
 }
 
 function renderDocentes(usuarios,preguntas){
@@ -779,6 +834,66 @@ ${cuerpo}
   }
   btn.innerHTML='Generar y descargar .docx';btn.disabled=false;
 }
+
+async function verMisPreguntas(){
+  setLoading(true);
+  const{data}=await db.from('preguntas').select('*')
+    .eq('usuario_id',usuarioActual.id).order('created_at',{ascending:false});
+  setLoading(false);
+  document.getElementById('mis-p-nombre').textContent=usuarioActual.nombre;
+  const el=document.getElementById('mis-preguntas-lista');
+  if(!data||!data.length){
+    el.innerHTML='<p style="color:var(--text3);font-size:14px;padding:2rem 0;text-align:center;">Aún no has enviado preguntas.</p>';
+    show('mis-preguntas-screen');return;
+  }
+  // Agrupar por grado+area
+  const grupos={};
+  data.forEach(p=>{
+    const k=p.grado+'||'+p.area;
+    if(!grupos[k])grupos[k]=[];
+    grupos[k].push(p);
+  });
+  el.innerHTML=Object.entries(grupos).map(([k,qs])=>{
+    const[grado,area]=k.split('||');
+    const ids=qs.map(q=>q.id);
+    return `<div style="margin-bottom:1.25rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <div style="font-size:13px;font-weight:700;color:var(--text);">${grado} — ${area}</div>
+        <button onclick="elimDocente([${ids.map(id=>"'"+id+"'").join(',')}],'${area} de ${grado}')"
+          style="font-size:11px;padding:3px 10px;border:0.5px solid var(--red);border-radius:20px;background:none;color:var(--red);cursor:pointer;">
+          Eliminar todos
+        </button>
+      </div>
+      ${qs.map((q,i)=>`
+        <div class="q-row" id="dqrow-${q.id}">
+          <div class="q-head">
+            <span style="font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap;">P.${i+1}</span>
+            <div class="q-txt">${q.enunciado}</div>
+            <button onclick="elimDocente(['${q.id}'],null)" class="btn-remove" title="Eliminar">✕</button>
+          </div>
+          <div class="q-alts">
+            ${['a','b','c','d','e'].filter(l=>q['alternativa_'+l]).map(l=>`
+              <div class="q-alt ${l===q.respuesta_correcta?'ok':''}">${l.toUpperCase()}) ${q['alternativa_'+l]}${l===q.respuesta_correcta?' ✓':''}</div>`).join('')}
+          </div>
+        </div>`).join('')}
+    </div>`;
+  }).join('');
+  show('mis-preguntas-screen');
+}
+
+async function elimDocente(ids,nombre){
+  const msg=nombre?'¿Eliminar todas las preguntas de "'+nombre+'"?':'¿Eliminar esta pregunta?';
+  if(!confirm(msg+'
+
+Esta acción no se puede deshacer.'))return;
+  setLoading(true);
+  const{error}=await db.from('preguntas').delete().in('id',ids);
+  setLoading(false);
+  if(error){alert('Error: '+error.message);return;}
+  ids.forEach(id=>document.getElementById('dqrow-'+id)?.remove());
+}
+
+function volverFormulario(){show('docente-screen');}
 
 function showAlert(id,type,msg){
   const el=document.getElementById(id);
