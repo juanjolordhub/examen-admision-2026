@@ -291,7 +291,7 @@
 
 <div id="loading" class="loading-overlay hidden">Cargando...</div>
 
-<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
 const SB_URL='https://wpgooddmmzzjfvocwidp.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndwZ29vZGRtbXp6amZ2b2N3aWRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5Mzc4OTksImV4cCI6MjA5MTUxMzg5OX0.YNnKcte67kBAdQM60vhrhtaHugqlXuebuFdchYOAOHU';
@@ -667,6 +667,30 @@ function previewGrado(){
   prev.innerHTML=`<strong>${grado}</strong> — ${pregs.length} pregunta${pregs.length!==1?'s':''} en ${areas.length} área${areas.length!==1?'s':''}: ${areas.join(', ')}`;
 }
 
+function xmlEscape(t){
+  if(!t)return'';
+  return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
+}
+
+function parrafo(texto,opts={}){
+  const bold=opts.bold?'<w:b/><w:bCs/>':'';
+  const sz=opts.big?'28':'24';
+  const jc=opts.center?'center':'both';
+  const after=opts.noSpace?'0':'100';
+  const t=xmlEscape(texto);
+  return `<w:p>
+    <w:pPr><w:jc w:val="${jc}"/><w:spacing w:after="${after}"/></w:pPr>
+    <w:r><w:rPr>
+      <w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
+      ${bold}<w:sz w:val="${sz}"/><w:szCs w:val="${sz}"/>
+    </w:rPr><w:t xml:space="preserve">${t}</w:t></w:r>
+  </w:p>`;
+}
+
+function parrafoVacio(){
+  return `<w:p><w:pPr><w:spacing w:after="80"/></w:pPr></w:p>`;
+}
+
 async function generarDocx(){
   const grado=document.getElementById('gen-grado').value;
   if(!grado){showAlert('gen-alert','error','Selecciona un grado.');return;}
@@ -677,74 +701,79 @@ async function generarDocx(){
   btn.innerHTML='<span class="spinner spinner-dark"></span>Generando...';btn.disabled=true;
 
   try{
-    const{Document,Packer,Paragraph,TextRun,AlignmentType,PageOrientation}=docx;
-
     // Agrupar por área en orden
     const porArea={};
     pregs.forEach(p=>{if(!porArea[p.area])porArea[p.area]=[];porArea[p.area].push(p);});
 
-    const children=[];
+    let cuerpo='';
     let numPregunta=1;
 
-    // Función para crear párrafo con formato del examen
-    const parr=(text,opts={})=>new Paragraph({
-      alignment: opts.center ? AlignmentType.CENTER : AlignmentType.BOTH,
-      spacing:{after:opts.noSpace?0:80},
-      children:[new TextRun({
-        text,
-        font:'Arial',
-        size: opts.big ? 28 : 24,
-        bold: !!opts.bold,
-        color: opts.color||'000000',
-      })]
-    });
-
     // Título del grado
-    children.push(parr(grado,{bold:true,big:true,center:true}));
-    children.push(parr('',{noSpace:false}));
+    cuerpo+=parrafo(grado,{bold:true,big:true,center:true});
+    cuerpo+=parrafoVacio();
 
-    // Por cada área en orden
+    // Por cada área en el orden oficial
     AREAS_ORDEN.forEach(area=>{
-      if(!porArea[area]) return;
-      // Encabezado de área
-      children.push(parr(area.toUpperCase(),{bold:true}));
+      if(!porArea[area])return;
+      // Encabezado área
+      cuerpo+=parrafo(area.toUpperCase(),{bold:true});
       porArea[area].sort((a,b)=>a.orden-b.orden).forEach(p=>{
         // Enunciado
-        children.push(parr(`${numPregunta}. ${p.enunciado}`,{bold:true}));
+        cuerpo+=parrafo(`${numPregunta}. ${p.enunciado}`,{bold:true});
         // Alternativas
-        const alts=['a','b','c','d','e'];
-        alts.forEach(l=>{
+        ['a','b','c','d','e'].forEach(l=>{
           const txt=p['alternativa_'+l];
           if(!txt)return;
-          children.push(parr(`${l}) ${txt}`,{noSpace:l!=='e'&&!p['alternativa_'+(alts[alts.indexOf(l)+1])]}));
+          cuerpo+=parrafo(`${l}) ${txt}`,{noSpace:false});
         });
-        children.push(parr('',{noSpace:false}));
+        cuerpo+=parrafoVacio();
         numPregunta++;
       });
     });
 
-    const doc=new Document({
-      sections:[{
-        properties:{
-          page:{
-            size:{width:11906,height:16838},
-            margin:{top:1417,right:991,bottom:1417,left:993},
-          },
-          column:{space:709,count:2}
-        },
-        children
-      }]
-    });
+    // XML del documento Word
+    const docXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+<w:body>
+${cuerpo}
+<w:sectPr>
+  <w:pgSz w:w="11906" w:h="16838"/>
+  <w:pgMar w:top="1417" w:right="991" w:bottom="1417" w:left="993" w:header="708" w:footer="708" w:gutter="0"/>
+  <w:cols w:num="2" w:sep="1" w:space="709"/>
+  <w:docGrid w:linePitch="360"/>
+</w:sectPr>
+</w:body>
+</w:document>`;
 
-    const buffer=await Packer.toBuffer(doc);
-    const blob=new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+    // Crear el ZIP (.docx)
+    const zip=new JSZip();
+    zip.file('[Content_Types].xml',
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+</Types>`);
+    zip.file('_rels/.rels',
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`);
+    zip.file('word/_rels/document.xml.rels',
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+</Relationships>`);
+    zip.file('word/document.xml', docXml);
+
+    const blob=await zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');
     a.href=url;
-    a.download=`Examen_${grado.replace(/[°\s]/g,'_')}_2026.docx`;
+    a.download=`Examen_${grado.replace(/[°\s\.]/g,'_')}_2026.docx`;
     a.click();
     URL.revokeObjectURL(url);
-    showAlert('gen-alert','success',`Examen de ${grado} generado y descargado.`);
+    showAlert('gen-alert','success',`Examen de ${grado} generado — ${numPregunta-1} preguntas.`);
   }catch(e){
     showAlert('gen-alert','error','Error al generar: '+e.message);
   }
