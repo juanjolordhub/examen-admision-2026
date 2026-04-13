@@ -309,8 +309,8 @@ const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 const SITE='https://juanjolordhub.github.io/examen-admision-2026';
 const db=supabase.createClient(SB_URL,SB_KEY);
 
-const AREAS_ORDEN=['Lenguaje','Literatura','Plan Lector','Razonamiento Verbal','Aritmética','Álgebra','Geometría','Trigonometría','Razonamiento Matemático','Física','Química','Biología','Historia','Geografía','Inglés','Tutoría'];
-const GRADOS_PRIM=['1° Primaria','2° Primaria','3° Primaria','4° Primaria','5° Primaria','6° Primaria'];
+const AREAS_ORDEN=['Lenguaje','Literatura','Plan Lector','Razonamiento Verbal','Aritm\u00E9tica','\u00C1lgebra','Geometr\u00EDa','Trigonometr\u00EDa','Razonamiento Matem\u00E1tico','F\u00EDsica','Qu\u00EDmica','Biolog\u00EDa','Historia','Geograf\u00EDa','Ingl\u00E9s','Tutor\u00EDa'];
+const GRADOS_PRIM=['1\u00B0 Primaria','2\u00B0 Primaria','3\u00B0 Primaria','4\u00B0 Primaria','5\u00B0 Primaria','6\u00B0 Primaria'];
 const GRADOS_SEC=['Alfa','Beta','Gama','Delta'];
 
 let usuarioActual=null,preguntaCount=0,imageFiles={},allPreguntas=[],allUsuarios=[];
@@ -356,12 +356,12 @@ async function doLogin(){
   const err=document.getElementById('login-error');
   err.classList.add('hidden');
   if(!uid){err.textContent='Selecciona tu nombre.';err.classList.remove('hidden');return;}
-  if(!pass){err.textContent='Ingresa tu contraseña.';err.classList.remove('hidden');return;}
+  if(!pass){err.textContent='Ingresa tu contrase\u00F1a.';err.classList.remove('hidden');return;}
   setLoading(true);
   const hash=await sha256(pass);
   const{data,error}=await db.from('usuarios').select('*').eq('id',uid).eq('password_hash',hash).eq('activo',true).single();
   setLoading(false);
-  if(error||!data){err.textContent='Contraseña incorrecta.';err.classList.remove('hidden');return;}
+  if(error||!data){err.textContent='Contrase\u00F1a incorrecta.';err.classList.remove('hidden');return;}
   usuarioActual=data;
   sessionStorage.setItem('usuario',JSON.stringify(data));
   if(data.rol==='director'){show('admin-screen');await cargarAdmin();}
@@ -396,7 +396,7 @@ function selNivel(nivel){
   document.getElementById('chip-prim').className='chip'+(nivel==='primaria'?' sel-blue':'');
   document.getElementById('chip-sec').className='chip'+(nivel==='secundaria'?' sel-purple':'');
   const grados=nivel==='primaria'?GRADOS_PRIM:GRADOS_SEC;
-  const label=nivel==='primaria'?'Grado':'Sección';
+  const label=nivel==='primaria'?'Grado':'Secci\u00F3n';
   document.getElementById('grado-label').textContent=label;
   const chips=document.getElementById('grado-chips');
   chips.innerHTML=grados.map(g=>
@@ -419,7 +419,7 @@ function agregarPregunta(){
   div.innerHTML=`
     <div class="pregunta-head">
       <span class="num">Pregunta ${id}</span>
-      ${id>1?`<button class="btn-remove" onclick="eliminarPregunta(${id})">✕</button>`:''}
+      ${id>1?`<button class="btn-remove" onclick="eliminarPregunta(${id})">\u2715</button>`:''}
     </div>
     <div class="pregunta-body">
       <div class="field"><label>Enunciado</label>
@@ -479,9 +479,9 @@ function recopilar(){
   const bloques=document.querySelectorAll('.pregunta-bloque');
   const out=[];const err=[];
   const area=document.getElementById('sel-area').value;
-  if(!area) err.push('Selecciona el área');
+  if(!area) err.push('Selecciona el \u00E1rea');
   if(!nivelSel) err.push('Selecciona el nivel (Primaria o Secundaria)');
-  if(!gradoSel) err.push('Selecciona el grado o sección');
+  if(!gradoSel) err.push('Selecciona el grado o secci\u00F3n');
   bloques.forEach((b,i)=>{
     const id=b.id.replace('pregunta-','');
     const enunciado=document.getElementById(`p${id}-e`).value.trim();
@@ -584,7 +584,7 @@ function filtrarP(){
 
 function renderPreguntas(preguntas){
   const el=document.getElementById('lista-preguntas');
-  if(!preguntas.length){el.innerHTML='<p style="color:var(--text3);font-size:13px;padding:1rem 0;">Sin preguntas aún.</p>';return;}
+  if(!preguntas.length){el.innerHTML='<p style="color:var(--text3);font-size:13px;padding:1rem 0;">Sin preguntas a\u00FAn.</p>';return;}
   const tree={};
   preguntas.forEach(p=>{
     if(!tree[p.nivel])tree[p.nivel]={};
@@ -612,7 +612,7 @@ function renderPreguntas(preguntas){
                 <div style="font-size:12px;font-weight:600;color:var(--blue);">${area}</div>
                 <button data-ids="${areaIds.join(',')}" data-label="${area} de ${grado}" onclick="elimGrupoBtn(this)"
                   style="font-size:11px;padding:2px 8px;border:0.5px solid var(--border2);border-radius:20px;background:none;color:var(--text3);cursor:pointer;">
-                  Eliminar área
+                  Eliminar \u00E1rea
                 </button>
               </div>
               ${qs.map((q,i)=>`
@@ -620,12 +620,12 @@ function renderPreguntas(preguntas){
                   <div class="q-head">
                     <span style="font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap;">P.${i+1}</span>
                     <div class="q-txt">${q.enunciado}</div>
-                    <button data-qid="${q.id}" onclick="elimPregunta(this.dataset.qid)" class="btn-remove" title="Eliminar">✕</button>
+                    <button data-qid="${q.id}" onclick="elimPregunta(this.dataset.qid)" class="btn-remove" title="Eliminar">\u2715</button>
                   </div>
                   ${q.imagen_url?`<img src="${q.imagen_url}" style="max-height:70px;border-radius:4px;margin-bottom:4px;border:0.5px solid var(--border);">`:''}
                   <div class="q-alts">
                     ${['a','b','c','d','e'].filter(l=>q['alternativa_'+l]).map(l=>`
-                      <div class="q-alt ${l===q.respuesta_correcta?'ok':''}">${l.toUpperCase()}) ${q['alternativa_'+l]}${l===q.respuesta_correcta?' ✓':''}</div>`).join('')}
+                      <div class="q-alt ${l===q.respuesta_correcta?'ok':''}">${l.toUpperCase()}) ${q['alternativa_'+l]}${l===q.respuesta_correcta?' \u2713':''}</div>`).join('')}
                   </div>
                 </div>`).join('')}
             </div>`;
@@ -636,7 +636,7 @@ function renderPreguntas(preguntas){
 }
 
 async function elimPregunta(id){
-  if(!confirm('¿Eliminar esta pregunta?'))return;
+  if(!confirm('\u00BFEliminar esta pregunta?'))return;
   const{error}=await db.from('preguntas').delete().eq('id',id);
   if(error){alert('Error al eliminar: '+error.message);return;}
   allPreguntas=allPreguntas.filter(p=>p.id!==id);
@@ -645,7 +645,7 @@ async function elimPregunta(id){
 }
 
 async function elimGrupo(ids,nombre){
-  if(!confirm('¿Eliminar todas las preguntas de "'+nombre+'"?\n\nEsta acción no se puede deshacer.'))return;
+  if(!confirm('\u00BFEliminar todas las preguntas de "'+nombre+'"?\n\nEsta acci\u00F3n no se puede deshacer.'))return;
   setLoading(true);
   const{error}=await db.from('preguntas').delete().in('id',ids);
   setLoading(false);
@@ -685,13 +685,13 @@ async function crearDocente(){
   const nombre=document.getElementById('nuevo-nombre').value.trim();
   const pass=document.getElementById('nuevo-pass').value.trim();
   if(!nombre){showAlert('nuevo-alert','error','Ingresa el nombre.');return;}
-  if(!pass){showAlert('nuevo-alert','error','Define una contraseña.');return;}
+  if(!pass){showAlert('nuevo-alert','error','Define una contrase\u00F1a.');return;}
   setLoading(true);
   const hash=await sha256(pass);
   const{data,error}=await db.from('usuarios').insert({nombre,rol:'docente',password_hash:hash}).select().single();
   setLoading(false);
   if(error){showAlert('nuevo-alert','error','Error: '+error.message);return;}
-  showAlert('nuevo-alert','success',`Docente "${nombre}" registrado. Contraseña: ${pass}`);
+  showAlert('nuevo-alert','success',`Docente "${nombre}" registrado. Contrase\u00F1a: ${pass}`);
   document.getElementById('nuevo-nombre').value='';
   document.getElementById('nuevo-pass').value='';
   allUsuarios.push(data);
@@ -719,7 +719,7 @@ function previewGrado(){
   const pregs=allPreguntas.filter(p=>p.grado===grado);
   const areas=[...new Set(pregs.map(p=>p.area))];
   prev.classList.remove('hidden');
-  prev.innerHTML=`<strong>${grado}</strong> — ${pregs.length} pregunta${pregs.length!==1?'s':''} en ${areas.length} área${areas.length!==1?'s':''}: ${areas.join(', ')}`;
+  prev.innerHTML=`<strong>${grado}</strong> \u2014 ${pregs.length} pregunta${pregs.length!==1?'s':''} en ${areas.length} \u00E1rea${areas.length!==1?'s':''}: ${areas.join(', ')}`;
 }
 
 function xmlEscape(t){
@@ -756,21 +756,21 @@ async function generarDocx(){
   btn.innerHTML='<span class="spinner spinner-dark"></span>Generando...';btn.disabled=true;
 
   try{
-    // Agrupar por área en orden
+    // Agrupar por \u00E1rea en orden
     const porArea={};
     pregs.forEach(p=>{if(!porArea[p.area])porArea[p.area]=[];porArea[p.area].push(p);});
 
     let cuerpo='';
     let numPregunta=1;
 
-    // Título del grado
+    // T\u00EDtulo del grado
     cuerpo+=parrafo(grado,{bold:true,big:true,center:true});
     cuerpo+=parrafoVacio();
 
-    // Por cada área en el orden oficial
+    // Por cada \u00E1rea en el orden oficial
     AREAS_ORDEN.forEach(area=>{
       if(!porArea[area])return;
-      // Encabezado área
+      // Encabezado \u00E1rea
       cuerpo+=parrafo(area.toUpperCase(),{bold:true});
       porArea[area].sort((a,b)=>a.orden-b.orden).forEach(p=>{
         // Enunciado
@@ -825,10 +825,10 @@ ${cuerpo}
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');
     a.href=url;
-    a.download=`Examen_${grado.replace(/[°\s\.]/g,'_')}_2026.docx`;
+    a.download=`Examen_${grado.replace(/[\u00B0\s\.]/g,'_')}_2026.docx`;
     a.click();
     URL.revokeObjectURL(url);
-    showAlert('gen-alert','success',`Examen de ${grado} generado — ${numPregunta-1} preguntas.`);
+    showAlert('gen-alert','success',`Examen de ${grado} generado \u2014 ${numPregunta-1} preguntas.`);
   }catch(e){
     showAlert('gen-alert','error','Error al generar: '+e.message);
   }
@@ -843,7 +843,7 @@ async function verMisPreguntas(){
   document.getElementById('mis-p-nombre').textContent=usuarioActual.nombre;
   const el=document.getElementById('mis-preguntas-lista');
   if(!data||!data.length){
-    el.innerHTML='<p style="color:var(--text3);font-size:14px;padding:2rem 0;text-align:center;">Aún no has enviado preguntas.</p>';
+    el.innerHTML='<p style="color:var(--text3);font-size:14px;padding:2rem 0;text-align:center;">A\u00FAn no has enviado preguntas.</p>';
     show('mis-preguntas-screen');return;
   }
   // Agrupar por grado+area
@@ -858,7 +858,7 @@ async function verMisPreguntas(){
     const ids=qs.map(q=>q.id);
     return `<div style="margin-bottom:1.25rem;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-        <div style="font-size:13px;font-weight:700;color:var(--text);">${grado} — ${area}</div>
+        <div style="font-size:13px;font-weight:700;color:var(--text);">${grado} \u2014 ${area}</div>
         <button data-ids="${ids.join(',')}" data-label="${area} de ${grado}" onclick="elimDocenteBtn(this)"
           style="font-size:11px;padding:3px 10px;border:0.5px solid var(--red);border-radius:20px;background:none;color:var(--red);cursor:pointer;">
           Eliminar todos
@@ -869,11 +869,11 @@ async function verMisPreguntas(){
           <div class="q-head">
             <span style="font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap;">P.${i+1}</span>
             <div class="q-txt">${q.enunciado}</div>
-            <button data-ids="${q.id}" data-label="" onclick="elimDocenteBtn(this)" class="btn-remove" title="Eliminar">✕</button>
+            <button data-ids="${q.id}" data-label="" onclick="elimDocenteBtn(this)" class="btn-remove" title="Eliminar">\u2715</button>
           </div>
           <div class="q-alts">
             ${['a','b','c','d','e'].filter(l=>q['alternativa_'+l]).map(l=>`
-              <div class="q-alt ${l===q.respuesta_correcta?'ok':''}">${l.toUpperCase()}) ${q['alternativa_'+l]}${l===q.respuesta_correcta?' ✓':''}</div>`).join('')}
+              <div class="q-alt ${l===q.respuesta_correcta?'ok':''}">${l.toUpperCase()}) ${q['alternativa_'+l]}${l===q.respuesta_correcta?' \u2713':''}</div>`).join('')}
           </div>
         </div>`).join('')}
     </div>`;
@@ -882,10 +882,8 @@ async function verMisPreguntas(){
 }
 
 async function elimDocente(ids,nombre){
-  const msg=nombre?'¿Eliminar todas las preguntas de "'+nombre+'"?':'¿Eliminar esta pregunta?';
-  if(!confirm(msg+'
-
-Esta acción no se puede deshacer.'))return;
+  const msg=nombre?'\u00BFEliminar todas las preguntas de "'+nombre+'"?':'\u00BFEliminar esta pregunta?';
+  if(!confirm(msg+'\n\nEsta acci\u00F3n no se puede deshacer.'))return;
   setLoading(true);
   const{error}=await db.from('preguntas').delete().in('id',ids);
   setLoading(false);
