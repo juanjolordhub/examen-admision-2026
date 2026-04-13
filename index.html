@@ -600,7 +600,7 @@ function renderPreguntas(preguntas){
         return `<div style="margin-bottom:1rem;margin-left:4px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
             <div class="sec-label" style="margin:0;">${grado} (${Object.values(areas).flat().length} preg.)</div>
-            <button onclick="elimGrupo([${gradoIds.map(id=>"'"+id+"'").join(',')}],'${grado}')"
+            <button data-ids="${gradoIds.join(',')}" data-label="${grado}" onclick="elimGrupoBtn(this)"
               style="font-size:11px;padding:3px 10px;border:0.5px solid var(--red);border-radius:20px;background:none;color:var(--red);cursor:pointer;white-space:nowrap;">
               Eliminar grado
             </button>
@@ -610,7 +610,7 @@ function renderPreguntas(preguntas){
             return `<div style="margin-bottom:12px;">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
                 <div style="font-size:12px;font-weight:600;color:var(--blue);">${area}</div>
-                <button onclick="elimGrupo([${areaIds.map(id=>"'"+id+"'").join(',')}],'${area} de ${grado}')"
+                <button data-ids="${areaIds.join(',')}" data-label="${area} de ${grado}" onclick="elimGrupoBtn(this)"
                   style="font-size:11px;padding:2px 8px;border:0.5px solid var(--border2);border-radius:20px;background:none;color:var(--text3);cursor:pointer;">
                   Eliminar área
                 </button>
@@ -620,7 +620,7 @@ function renderPreguntas(preguntas){
                   <div class="q-head">
                     <span style="font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap;">P.${i+1}</span>
                     <div class="q-txt">${q.enunciado}</div>
-                    <button onclick="elimPregunta('${q.id}')" class="btn-remove" title="Eliminar">✕</button>
+                    <button data-qid="${q.id}" onclick="elimPregunta(this.dataset.qid)" class="btn-remove" title="Eliminar">✕</button>
                   </div>
                   ${q.imagen_url?`<img src="${q.imagen_url}" style="max-height:70px;border-radius:4px;margin-bottom:4px;border:0.5px solid var(--border);">`:''}
                   <div class="q-alts">
@@ -859,7 +859,7 @@ async function verMisPreguntas(){
     return `<div style="margin-bottom:1.25rem;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
         <div style="font-size:13px;font-weight:700;color:var(--text);">${grado} — ${area}</div>
-        <button onclick="elimDocente([${ids.map(id=>"'"+id+"'").join(',')}],'${area} de ${grado}')"
+        <button data-ids="${ids.join(',')}" data-label="${area} de ${grado}" onclick="elimDocenteBtn(this)"
           style="font-size:11px;padding:3px 10px;border:0.5px solid var(--red);border-radius:20px;background:none;color:var(--red);cursor:pointer;">
           Eliminar todos
         </button>
@@ -869,7 +869,7 @@ async function verMisPreguntas(){
           <div class="q-head">
             <span style="font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap;">P.${i+1}</span>
             <div class="q-txt">${q.enunciado}</div>
-            <button onclick="elimDocente(['${q.id}'],null)" class="btn-remove" title="Eliminar">✕</button>
+            <button data-ids="${q.id}" data-label="" onclick="elimDocenteBtn(this)" class="btn-remove" title="Eliminar">✕</button>
           </div>
           <div class="q-alts">
             ${['a','b','c','d','e'].filter(l=>q['alternativa_'+l]).map(l=>`
@@ -895,6 +895,16 @@ Esta acción no se puede deshacer.'))return;
 
 function volverFormulario(){show('docente-screen');}
 
+function elimGrupoBtn(btn){
+  const ids=btn.dataset.ids.split(',').filter(Boolean);
+  const label=btn.dataset.label;
+  elimGrupo(ids,label);
+}
+function elimDocenteBtn(btn){
+  const ids=btn.dataset.ids.split(',').filter(Boolean);
+  const label=btn.dataset.label;
+  elimDocente(ids,label||null);
+}
 function showAlert(id,type,msg){
   const el=document.getElementById(id);
   el.className=`alert alert-${type==='error'?'error':type==='success'?'success':'info'}`;
