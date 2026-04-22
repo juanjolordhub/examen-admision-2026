@@ -799,14 +799,16 @@ async function generarDocx(){
     cuerpo+=parrafoVacio();
 
     // Por cada área en el orden oficial
-    // Ordenar areas: primero las que estan en AREAS_ORDEN, luego el resto
+    // Normalizar texto para comparar sin tildes
+    const norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
     const areasEnDatos=Object.keys(porArea);
+    // Ordenar usando AREAS_ORDEN como referencia, luego el resto
     const areasOrdenadas=[
-      ...AREAS_ORDEN.filter(a=>areasEnDatos.some(b=>b.toLowerCase()===a.toLowerCase())),
-      ...areasEnDatos.filter(a=>!AREAS_ORDEN.some(b=>b.toLowerCase()===a.toLowerCase()))
+      ...AREAS_ORDEN.filter(a=>areasEnDatos.some(b=>norm(b)===norm(a))),
+      ...areasEnDatos.filter(a=>!AREAS_ORDEN.some(b=>norm(b)===norm(a)))
     ];
-    areasOrdenadas.forEach(areaOrden=>{
-      const areaKey=areasEnDatos.find(b=>b.toLowerCase()===areaOrden.toLowerCase())||areaOrden;
+    areasOrdenadas.forEach(areaRef=>{
+      const areaKey=areasEnDatos.find(b=>norm(b)===norm(areaRef))||areaRef;
       if(!porArea[areaKey])return;
       cuerpo+=parrafo(areaKey.toUpperCase(),{bold:true});
       porArea[areaKey].sort((a,b)=>a.orden-b.orden).forEach(p=>{
@@ -979,13 +981,14 @@ async function generarClaves(){
     cuerpo+=parrafo('N de pregunta          Respuesta correcta',{bold:true});
     cuerpo+=parrafo('_'.repeat(45));
     cuerpo+=parrafoVacio();
+    const norm2=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
     const areasEnDatos2=Object.keys(porArea);
     const areasOrdenadas2=[
-      ...AREAS_ORDEN.filter(a=>areasEnDatos2.some(b=>b.toLowerCase()===a.toLowerCase())),
-      ...areasEnDatos2.filter(a=>!AREAS_ORDEN.some(b=>b.toLowerCase()===a.toLowerCase()))
+      ...AREAS_ORDEN.filter(a=>areasEnDatos2.some(b=>norm2(b)===norm2(a))),
+      ...areasEnDatos2.filter(a=>!AREAS_ORDEN.some(b=>norm2(b)===norm2(a)))
     ];
-    areasOrdenadas2.forEach(areaOrden=>{
-      const area=areasEnDatos2.find(b=>b.toLowerCase()===areaOrden.toLowerCase())||areaOrden;
+    areasOrdenadas2.forEach(areaRef2=>{
+      const area=areasEnDatos2.find(b=>norm2(b)===norm2(areaRef2))||areaRef2;
       if(!porArea[area])return;
       cuerpo+=parrafo(area.toUpperCase(),{bold:true});
       porArea[area].sort((a,b)=>a.orden-b.orden).forEach(p=>{
