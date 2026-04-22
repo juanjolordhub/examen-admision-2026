@@ -799,14 +799,18 @@ async function generarDocx(){
     cuerpo+=parrafoVacio();
 
     // Por cada área en el orden oficial
-    AREAS_ORDEN.forEach(area=>{
-      if(!porArea[area])return;
-      // Encabezado área
-      cuerpo+=parrafo(area.toUpperCase(),{bold:true});
-      porArea[area].sort((a,b)=>a.orden-b.orden).forEach(p=>{
-        // Enunciado
+    // Ordenar areas: primero las que estan en AREAS_ORDEN, luego el resto
+    const areasEnDatos=Object.keys(porArea);
+    const areasOrdenadas=[
+      ...AREAS_ORDEN.filter(a=>areasEnDatos.some(b=>b.toLowerCase()===a.toLowerCase())),
+      ...areasEnDatos.filter(a=>!AREAS_ORDEN.some(b=>b.toLowerCase()===a.toLowerCase()))
+    ];
+    areasOrdenadas.forEach(areaOrden=>{
+      const areaKey=areasEnDatos.find(b=>b.toLowerCase()===areaOrden.toLowerCase())||areaOrden;
+      if(!porArea[areaKey])return;
+      cuerpo+=parrafo(areaKey.toUpperCase(),{bold:true});
+      porArea[areaKey].sort((a,b)=>a.orden-b.orden).forEach(p=>{
         cuerpo+=parrafo(`${numPregunta}. ${p.enunciado}`,{bold:true});
-        // Alternativas
         ['a','b','c','d','e'].forEach(l=>{
           const txt=p['alternativa_'+l];
           if(!txt)return;
@@ -975,7 +979,13 @@ async function generarClaves(){
     cuerpo+=parrafo('N de pregunta          Respuesta correcta',{bold:true});
     cuerpo+=parrafo('_'.repeat(45));
     cuerpo+=parrafoVacio();
-    AREAS_ORDEN.forEach(area=>{
+    const areasEnDatos2=Object.keys(porArea);
+    const areasOrdenadas2=[
+      ...AREAS_ORDEN.filter(a=>areasEnDatos2.some(b=>b.toLowerCase()===a.toLowerCase())),
+      ...areasEnDatos2.filter(a=>!AREAS_ORDEN.some(b=>b.toLowerCase()===a.toLowerCase()))
+    ];
+    areasOrdenadas2.forEach(areaOrden=>{
+      const area=areasEnDatos2.find(b=>b.toLowerCase()===areaOrden.toLowerCase())||areaOrden;
       if(!porArea[area])return;
       cuerpo+=parrafo(area.toUpperCase(),{bold:true});
       porArea[area].sort((a,b)=>a.orden-b.orden).forEach(p=>{
