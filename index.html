@@ -777,6 +777,47 @@ function parrafoVacio(){
   return `<w:p><w:pPr><w:spacing w:after="80"/></w:pPr></w:p>`;
 }
 
+// Descarga imagen y la convierte a base64
+async function fetchImgBase64(url){
+  try{
+    const resp=await fetch(url);
+    if(!resp.ok)return null;
+    const blob=await resp.blob();
+    return new Promise(res=>{
+      const r=new FileReader();
+      r.onload=e=>res(e.target.result.split(',')[1]);
+      r.onerror=()=>res(null);
+      r.readAsDataURL(blob);
+    });
+  }catch(e){return null;}
+}
+
+// Genera XML de imagen incrustada (media columna = ~3200 EMU ancho)
+function imgXml(rId,ancho=2700000,alto=1800000){
+  return `<w:p><w:pPr><w:jc w:val="left"/><w:spacing w:after="60"/></w:pPr>
+  <w:r><w:drawing>
+    <wp:inline xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing">
+      <wp:extent cx="${ancho}" cy="${alto}"/>
+      <wp:docPr id="1" name="img"/>
+      <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+        <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
+          <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+            <pic:nvPicPr><pic:cNvPr id="1" name="img"/><pic:cNvPicPr/></pic:nvPicPr>
+            <pic:blipFill>
+              <a:blip r:embed="${rId}"/>
+              <a:stretch><a:fillRect/></a:stretch>
+            </pic:blipFill>
+            <pic:spPr>
+              <a:xfrm><a:off x="0" y="0"/><a:ext cx="${ancho}" cy="${alto}"/></a:xfrm>
+              <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>
+            </pic:spPr>
+          </pic:pic>
+        </a:graphicData>
+      </a:graphic>
+    </wp:inline>
+  </w:drawing></w:r></w:p>`;
+}
+
 async function generarDocx(){
   const grado=document.getElementById('gen-grado').value;
   if(!grado){showAlert('gen-alert','error','Selecciona un grado.');return;}
@@ -787,32 +828,47 @@ async function generarDocx(){
   btn.innerHTML='<span class="spinner spinner-dark"></span>Generando...';btn.disabled=true;
 
   try{
-    // Agrupar por área en orden
+    const norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
     const porArea={};
     pregs.forEach(p=>{if(!porArea[p.area])porArea[p.area]=[];porArea[p.area].push(p);});
 
+    // Pre-descargar todas las imagenes
+    const imgData={};
+    const pregsConImg=pregs.filter(p=>p.imagen_url);
+    btn.innerHTML='<span class="spinner spinner-dark"></span>Descargando imagenes ('+pregsConImg.length+')...';
+    for(const p of pregsConImg){
+      const b64=await fetchImgBase64(p.imagen_url);
+      if(b64) imgData[p.id]={b64, ext:p.imagen_url.split('.').pop().toLowerCase().replace(/[^a-z]/g,'')};
+    }
+
+    btn.innerHTML='<span class="spinner spinner-dark"></span>Construyendo docx...';
+
     let cuerpo='';
     let numPregunta=1;
+    let imgRels=[];   // {rId, b64, ext}
+    let rIdCounter=1;
 
-    // Título del grado
     cuerpo+=parrafo(grado,{bold:true,big:true,center:true});
     cuerpo+=parrafoVacio();
 
-    // Por cada área en el orden oficial
-    // Normalizar texto para comparar sin tildes
-    const norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
     const areasEnDatos=Object.keys(porArea);
-    // Ordenar usando AREAS_ORDEN como referencia, luego el resto
     const areasOrdenadas=[
       ...AREAS_ORDEN.filter(a=>areasEnDatos.some(b=>norm(b)===norm(a))),
       ...areasEnDatos.filter(a=>!AREAS_ORDEN.some(b=>norm(b)===norm(a)))
     ];
+
     areasOrdenadas.forEach(areaRef=>{
       const areaKey=areasEnDatos.find(b=>norm(b)===norm(areaRef))||areaRef;
       if(!porArea[areaKey])return;
       cuerpo+=parrafo(areaKey.toUpperCase(),{bold:true});
       porArea[areaKey].sort((a,b)=>a.orden-b.orden).forEach(p=>{
         cuerpo+=parrafo(`${numPregunta}. ${p.enunciado}`,{bold:true});
+        // Imagen debajo del enunciado si existe
+        if(imgData[p.id]){
+          const rId='rId'+(rIdCounter++);
+          imgRels.push({rId, b64:imgData[p.id].b64, ext:imgData[p.id].ext||'png'});
+          cuerpo+=imgXml(rId);
+        }
         ['a','b','c','d','e'].forEach(l=>{
           const txt=p['alternativa_'+l];
           if(!txt)return;
@@ -823,10 +879,16 @@ async function generarDocx(){
       });
     });
 
-    // XML del documento Word
+    // Construir relationships de imagenes
+    const mimeMap={png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',gif:'image/gif',bmp:'image/bmp',webp:'image/webp'};
+    const imgRelsXml=imgRels.map(r=>`<Relationship Id="${r.rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/${r.rId}.${r.ext}"/>`).join('\n');
+
     const docXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
-  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+  xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
+  xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
+  xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
 <w:body>
 ${cuerpo}
 <w:sectPr>
@@ -838,25 +900,39 @@ ${cuerpo}
 </w:body>
 </w:document>`;
 
-    // Crear el ZIP (.docx)
     const zip=new JSZip();
+
+    // Content types - incluir tipos de imagen usados
+    const extUsados=[...new Set(imgRels.map(r=>r.ext))];
+    const imgContentTypes=extUsados.map(ext=>`<Default Extension="${ext}" ContentType="${mimeMap[ext]||'image/png'}"/>`).join('\n  ');
     zip.file('[Content_Types].xml',
       `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
   <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
   <Default Extension="xml" ContentType="application/xml"/>
+  ${imgContentTypes}
   <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
 </Types>`);
+
     zip.file('_rels/.rels',
       `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
   <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
 </Relationships>`);
+
+    // Relationships con imagenes
     zip.file('word/_rels/document.xml.rels',
       `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+${imgRelsXml}
 </Relationships>`);
+
     zip.file('word/document.xml', docXml);
+
+    // Agregar archivos de imagen al ZIP
+    imgRels.forEach(r=>{
+      zip.file(`word/media/${r.rId}.${r.ext}`, r.b64, {base64:true});
+    });
 
     const blob=await zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
     const url=URL.createObjectURL(blob);
