@@ -167,7 +167,7 @@
   <div class="topbar">
     <div class="t-icon" style="background:var(--blue)"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg></div>
     <div class="t-info"><div class="t-title" id="doc-topname"></div><div class="t-sub">Carga de preguntas — Examen de Admisión 2026</div></div>
-    <button class="logout-btn" onclick="cerrarSesion()">Salir</button>
+    <div style="display:flex;gap:6px;"><button class="logout-btn" onclick="abrirModalPass()" style="color:var(--blue);border-color:var(--blue);">Contrasena</button><button class="logout-btn" onclick="cerrarSesion()">Salir</button></div>
   </div>
   <div id="docente-alert" class="hidden"></div>
 
@@ -177,12 +177,12 @@
     <div class="field">
       <label>Área / Curso</label>
       <select id="sel-area">
-        <option value="">-- Selecciona el área --</option>
-        <option>Lenguaje</option><option>Literatura</option><option>Plan Lector</option>
-        <option>Razonamiento Verbal</option><option>Aritmética</option><option>Álgebra</option>
-        <option>Geometría</option><option>Trigonometría</option><option>Razonamiento Matemático</option>
-        <option>Física</option><option>Química</option><option>Biología</option>
-        <option>Historia</option><option>Geografía</option><option>Inglés</option><option>Tutoría</option>
+        <option value="">-- Selecciona el area --</option>
+        <option>Comunicacion</option><option>Lenguaje</option><option>Literatura</option><option>Plan Lector</option>
+        <option>Razonamiento Verbal</option><option>Aritmetica</option><option>Algebra</option>
+        <option>Geometria</option><option>Trigonometria</option><option>Razonamiento Matematico</option>
+        <option>Ciencia y Tecnologia</option><option>Fisica</option><option>Quimica</option><option>Biologia</option>
+        <option>Personal Social</option><option>Historia</option><option>Geografia</option><option>Ingles</option><option>Tutoria</option>
       </select>
     </div>
 
@@ -203,7 +203,7 @@
   <div id="preguntas-container"></div>
   <button class="btn-add" onclick="agregarPregunta()">+ Agregar otra pregunta</button>
   <div class="btn-row">
-    <button class="btn" onclick="verMisPreguntas()">Ver mis preguntas enviadas</button>
+    <button class="btn" onclick="verMisPreguntas()">Ver mis preguntas</button>
     <button class="btn btn-primary" id="btn-enviar" onclick="enviarPreguntas()" style="width:auto;padding:10px 30px;">Enviar preguntas</button>
   </div>
 </div>
@@ -218,7 +218,7 @@
   <div id="mis-preguntas-lista"></div>
 </div>
 
-<!-- ÉXITO -->
+<!-- EXITO -->
 <div id="exito-screen" class="hidden">
   <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;">
     <div style="text-align:center;max-width:380px;">
@@ -240,7 +240,7 @@
   <div class="topbar">
     <div class="t-icon" style="background:#2C2C2A"><svg viewBox="0 0 24 24" fill="white"><path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 16a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z"/></svg></div>
     <div class="t-info"><div class="t-title">Panel Director</div><div class="t-sub">Examen de Admisión 2026</div></div>
-    <button class="logout-btn" onclick="cerrarSesion()">Salir</button>
+    <div style="display:flex;gap:6px;"><button class="logout-btn" onclick="abrirModalPass()" style="color:var(--blue);border-color:var(--blue);">Contrasena</button><button class="logout-btn" onclick="cerrarSesion()">Salir</button></div>
   </div>
 
   <div class="stat-grid">
@@ -293,18 +293,30 @@
       <div id="gen-preview" class="hidden" style="margin-bottom:12px;padding:10px;background:var(--bg2);border-radius:var(--r);font-size:13px;color:var(--text2);"></div>
       <div id="gen-alert" class="hidden"></div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button class="btn btn-primary" id="btn-generar" onclick="generarDocx()" style="width:auto;padding:10px 24px;">
-          Generar y descargar .docx
-        </button>
-        <button class="btn" id="btn-claves" onclick="generarClaves()" style="width:auto;padding:10px 24px;border-color:var(--green);color:var(--green);">
-          Descargar clave de respuestas
-        </button>
+        <button class="btn btn-primary" id="btn-generar" onclick="generarDocx()" style="width:auto;padding:10px 24px;">Generar examen .docx</button>
+        <button class="btn" id="btn-claves" onclick="generarClaves()" style="width:auto;padding:10px 24px;border-color:var(--green);color:var(--green);">Clave de respuestas</button>
       </div>
     </div>
     <p style="font-size:12px;color:var(--text3);margin-top:8px;">El archivo se descargará listo. Solo necesitas agregar la portada.</p>
   </div>
 </div>
 
+<div id="modal-pass" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:300;padding:1rem;">
+  <div style="background:var(--bg);border-radius:var(--rl);padding:1.75rem;width:100%;max-width:380px;">
+    <h3 style="font-size:15px;font-weight:700;margin-bottom:1rem;">Cambiar contrasena</h3>
+    <div class="field"><label>Contrasena actual</label>
+      <input type="password" id="pass-actual" placeholder="Tu contrasena actual"></div>
+    <div class="field"><label>Nueva contrasena</label>
+      <input type="password" id="pass-nueva" placeholder="Nueva contrasena"></div>
+    <div class="field"><label>Confirmar nueva contrasena</label>
+      <input type="password" id="pass-confirmar" placeholder="Repite la nueva contrasena"></div>
+    <div id="pass-alert" class="hidden"></div>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button class="btn" onclick="cerrarModalPass()" style="flex:1;">Cancelar</button>
+      <button class="btn btn-primary" onclick="cambiarPassword()" style="flex:2;">Guardar</button>
+    </div>
+  </div>
+</div>
 <div id="loading" class="loading-overlay hidden">Cargando...</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -314,8 +326,8 @@ const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 const SITE='https://juanjolordhub.github.io/examen-admision-2026';
 const db=supabase.createClient(SB_URL,SB_KEY);
 
-const AREAS_ORDEN=['Lenguaje','Literatura','Plan Lector','Razonamiento Verbal','Aritm\u00E9tica','\u00C1lgebra','Geometr\u00EDa','Trigonometr\u00EDa','Razonamiento Matem\u00E1tico','F\u00EDsica','Qu\u00EDmica','Biolog\u00EDa','Historia','Geograf\u00EDa','Ingl\u00E9s','Tutor\u00EDa'];
-const GRADOS_PRIM=['1\u00B0 Primaria','2\u00B0 Primaria','3\u00B0 Primaria','4\u00B0 Primaria','5\u00B0 Primaria','6\u00B0 Primaria'];
+const AREAS_ORDEN=['Comunicacion','Lenguaje','Literatura','Plan Lector','Razonamiento Verbal','Aritmetica','Algebra','Geometria','Trigonometria','Razonamiento Matematico','Ciencia y Tecnologia','Fisica','Quimica','Biologia','Personal Social','Historia','Geografia','Ingles','Tutoria'];
+const GRADOS_PRIM=['1° Primaria','2° Primaria','3° Primaria','4° Primaria','5° Primaria','6° Primaria'];
 const GRADOS_SEC=['Alfa','Beta','Gama','Delta'];
 
 let usuarioActual=null,preguntaCount=0,imageFiles={},allPreguntas=[],allUsuarios=[];
@@ -361,12 +373,12 @@ async function doLogin(){
   const err=document.getElementById('login-error');
   err.classList.add('hidden');
   if(!uid){err.textContent='Selecciona tu nombre.';err.classList.remove('hidden');return;}
-  if(!pass){err.textContent='Ingresa tu contrase\u00F1a.';err.classList.remove('hidden');return;}
+  if(!pass){err.textContent='Ingresa tu contraseña.';err.classList.remove('hidden');return;}
   setLoading(true);
   const hash=await sha256(pass);
   const{data,error}=await db.from('usuarios').select('*').eq('id',uid).eq('password_hash',hash).eq('activo',true).single();
   setLoading(false);
-  if(error||!data){err.textContent='Contrase\u00F1a incorrecta.';err.classList.remove('hidden');return;}
+  if(error||!data){err.textContent='Contraseña incorrecta.';err.classList.remove('hidden');return;}
   usuarioActual=data;
   sessionStorage.setItem('usuario',JSON.stringify(data));
   if(data.rol==='director'){show('admin-screen');await cargarAdmin();}
@@ -401,7 +413,7 @@ function selNivel(nivel){
   document.getElementById('chip-prim').className='chip'+(nivel==='primaria'?' sel-blue':'');
   document.getElementById('chip-sec').className='chip'+(nivel==='secundaria'?' sel-purple':'');
   const grados=nivel==='primaria'?GRADOS_PRIM:GRADOS_SEC;
-  const label=nivel==='primaria'?'Grado':'Secci\u00F3n';
+  const label=nivel==='primaria'?'Grado':'Sección';
   document.getElementById('grado-label').textContent=label;
   const chips=document.getElementById('grado-chips');
   chips.innerHTML=grados.map(g=>
@@ -424,7 +436,7 @@ function agregarPregunta(){
   div.innerHTML=`
     <div class="pregunta-head">
       <span class="num">Pregunta ${id}</span>
-      ${id>1?`<button class="btn-remove" onclick="eliminarPregunta(${id})">\u2715</button>`:''}
+      ${id>1?`<button class="btn-remove" onclick="eliminarPregunta(${id})">✕</button>`:''}
     </div>
     <div class="pregunta-body">
       <div class="field"><label>Enunciado</label>
@@ -484,9 +496,9 @@ function recopilar(){
   const bloques=document.querySelectorAll('.pregunta-bloque');
   const out=[];const err=[];
   const area=document.getElementById('sel-area').value;
-  if(!area) err.push('Selecciona el \u00E1rea');
+  if(!area) err.push('Selecciona el área');
   if(!nivelSel) err.push('Selecciona el nivel (Primaria o Secundaria)');
-  if(!gradoSel) err.push('Selecciona el grado o secci\u00F3n');
+  if(!gradoSel) err.push('Selecciona el grado o sección');
   bloques.forEach((b,i)=>{
     const id=b.id.replace('pregunta-','');
     const enunciado=document.getElementById(`p${id}-e`).value.trim();
@@ -589,7 +601,7 @@ function filtrarP(){
 
 function renderPreguntas(preguntas){
   const el=document.getElementById('lista-preguntas');
-  if(!preguntas.length){el.innerHTML='<p style="color:var(--text3);font-size:13px;padding:1rem 0;">Sin preguntas a\u00FAn.</p>';return;}
+  if(!preguntas.length){el.innerHTML='<p style="color:var(--text3);font-size:13px;padding:1rem 0;">Sin preguntas aun.</p>';return;}
   const tree={};
   preguntas.forEach(p=>{
     if(!tree[p.nivel])tree[p.nivel]={};
@@ -617,7 +629,7 @@ function renderPreguntas(preguntas){
                 <div style="font-size:12px;font-weight:600;color:var(--blue);">${area}</div>
                 <button data-ids="${areaIds.join(',')}" data-label="${area} de ${grado}" onclick="elimGrupoBtn(this)"
                   style="font-size:11px;padding:2px 8px;border:0.5px solid var(--border2);border-radius:20px;background:none;color:var(--text3);cursor:pointer;">
-                  Eliminar \u00E1rea
+                  Eliminar area
                 </button>
               </div>
               ${qs.map((q,i)=>`
@@ -625,12 +637,12 @@ function renderPreguntas(preguntas){
                   <div class="q-head">
                     <span style="font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap;">P.${i+1}</span>
                     <div class="q-txt">${q.enunciado}</div>
-                    <button data-qid="${q.id}" onclick="elimPregunta(this.dataset.qid)" class="btn-remove" title="Eliminar">\u2715</button>
+                    <button data-qid="${q.id}" onclick="elimPregunta(this.dataset.qid)" class="btn-remove" title="Eliminar">x</button>
                   </div>
                   ${q.imagen_url?`<img src="${q.imagen_url}" style="max-height:70px;border-radius:4px;margin-bottom:4px;border:0.5px solid var(--border);">`:''}
                   <div class="q-alts">
                     ${['a','b','c','d','e'].filter(l=>q['alternativa_'+l]).map(l=>`
-                      <div class="q-alt ${l===q.respuesta_correcta?'ok':''}">${l.toUpperCase()}) ${q['alternativa_'+l]}${l===q.respuesta_correcta?' \u2713':''}</div>`).join('')}
+                      <div class="q-alt ${l===q.respuesta_correcta?'ok':''}">${l.toUpperCase()}) ${q['alternativa_'+l]}${l===q.respuesta_correcta?' V':''}</div>`).join('')}
                   </div>
                 </div>`).join('')}
             </div>`;
@@ -641,16 +653,16 @@ function renderPreguntas(preguntas){
 }
 
 async function elimPregunta(id){
-  if(!confirm('\u00BFEliminar esta pregunta?'))return;
+  if(!confirm('Eliminar esta pregunta?'))return;
   const{error}=await db.from('preguntas').delete().eq('id',id);
-  if(error){alert('Error al eliminar: '+error.message);return;}
+  if(error){alert('Error: '+error.message);return;}
   allPreguntas=allPreguntas.filter(p=>p.id!==id);
   document.getElementById('qrow-'+id)?.remove();
   actualizarStats();
 }
 
 async function elimGrupo(ids,nombre){
-  if(!confirm('\u00BFEliminar todas las preguntas de "'+nombre+'"?\n\nEsta acci\u00F3n no se puede deshacer.'))return;
+  if(!confirm('Eliminar todas las preguntas de "'+nombre+'"? Esta accion no se puede deshacer.'))return;
   setLoading(true);
   const{error}=await db.from('preguntas').delete().in('id',ids);
   setLoading(false);
@@ -660,6 +672,12 @@ async function elimGrupo(ids,nombre){
   actualizarStats();
 }
 
+function elimGrupoBtn(btn){
+  const ids=btn.dataset.ids.split(',').filter(Boolean);
+  const label=btn.dataset.label;
+  elimGrupo(ids,label);
+}
+
 function actualizarStats(){
   const grados=[...new Set(allPreguntas.map(p=>p.grado).filter(Boolean))];
   document.getElementById('stat-preg').textContent=allPreguntas.length;
@@ -667,6 +685,7 @@ function actualizarStats(){
   const gg=document.getElementById('gen-grado');
   if(gg){gg.innerHTML='<option value="">-- Elige un grado --</option>';grados.sort().forEach(g=>{const o=document.createElement('option');o.value=g;o.textContent=g;gg.appendChild(o);});}
 }
+
 
 function renderDocentes(usuarios,preguntas){
   const el=document.getElementById('lista-docentes');
@@ -690,13 +709,13 @@ async function crearDocente(){
   const nombre=document.getElementById('nuevo-nombre').value.trim();
   const pass=document.getElementById('nuevo-pass').value.trim();
   if(!nombre){showAlert('nuevo-alert','error','Ingresa el nombre.');return;}
-  if(!pass){showAlert('nuevo-alert','error','Define una contrase\u00F1a.');return;}
+  if(!pass){showAlert('nuevo-alert','error','Define una contraseña.');return;}
   setLoading(true);
   const hash=await sha256(pass);
   const{data,error}=await db.from('usuarios').insert({nombre,rol:'docente',password_hash:hash}).select().single();
   setLoading(false);
   if(error){showAlert('nuevo-alert','error','Error: '+error.message);return;}
-  showAlert('nuevo-alert','success',`Docente "${nombre}" registrado. Contrase\u00F1a: ${pass}`);
+  showAlert('nuevo-alert','success',`Docente "${nombre}" registrado. Contraseña: ${pass}`);
   document.getElementById('nuevo-nombre').value='';
   document.getElementById('nuevo-pass').value='';
   allUsuarios.push(data);
@@ -724,7 +743,7 @@ function previewGrado(){
   const pregs=allPreguntas.filter(p=>p.grado===grado);
   const areas=[...new Set(pregs.map(p=>p.area))];
   prev.classList.remove('hidden');
-  prev.innerHTML=`<strong>${grado}</strong> \u2014 ${pregs.length} pregunta${pregs.length!==1?'s':''} en ${areas.length} \u00E1rea${areas.length!==1?'s':''}: ${areas.join(', ')}`;
+  prev.innerHTML=`<strong>${grado}</strong> — ${pregs.length} pregunta${pregs.length!==1?'s':''} en ${areas.length} área${areas.length!==1?'s':''}: ${areas.join(', ')}`;
 }
 
 function xmlEscape(t){
@@ -761,21 +780,21 @@ async function generarDocx(){
   btn.innerHTML='<span class="spinner spinner-dark"></span>Generando...';btn.disabled=true;
 
   try{
-    // Agrupar por \u00E1rea en orden
+    // Agrupar por área en orden
     const porArea={};
     pregs.forEach(p=>{if(!porArea[p.area])porArea[p.area]=[];porArea[p.area].push(p);});
 
     let cuerpo='';
     let numPregunta=1;
 
-    // T\u00EDtulo del grado
+    // Título del grado
     cuerpo+=parrafo(grado,{bold:true,big:true,center:true});
     cuerpo+=parrafoVacio();
 
-    // Por cada \u00E1rea en el orden oficial
+    // Por cada área en el orden oficial
     AREAS_ORDEN.forEach(area=>{
       if(!porArea[area])return;
-      // Encabezado \u00E1rea
+      // Encabezado área
       cuerpo+=parrafo(area.toUpperCase(),{bold:true});
       porArea[area].sort((a,b)=>a.orden-b.orden).forEach(p=>{
         // Enunciado
@@ -830,41 +849,69 @@ ${cuerpo}
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');
     a.href=url;
-    a.download=`Examen_${grado.replace(/[\u00B0\s\.]/g,'_')}_2026.docx`;
+    a.download=`Examen_${grado.replace(/[°\s\.]/g,'_')}_2026.docx`;
     a.click();
     URL.revokeObjectURL(url);
-    showAlert('gen-alert','success',`Examen de ${grado} generado \u2014 ${numPregunta-1} preguntas.`);
+    showAlert('gen-alert','success',`Examen de ${grado} generado — ${numPregunta-1} preguntas.`);
   }catch(e){
     showAlert('gen-alert','error','Error al generar: '+e.message);
   }
   btn.innerHTML='Generar y descargar .docx';btn.disabled=false;
 }
 
+function showAlert(id,type,msg){
+  const el=document.getElementById(id);
+  el.className=`alert alert-${type==='error'?'error':type==='success'?'success':'info'}`;
+  el.textContent=msg;el.classList.remove('hidden');
+  if(type!=='success')setTimeout(()=>el.classList.add('hidden'),7000);
+}
+function abrirModalPass(){
+  document.getElementById('pass-actual').value='';
+  document.getElementById('pass-nueva').value='';
+  document.getElementById('pass-confirmar').value='';
+  document.getElementById('pass-alert').classList.add('hidden');
+  document.getElementById('modal-pass').classList.remove('hidden');
+}
+function cerrarModalPass(){
+  document.getElementById('modal-pass').classList.add('hidden');
+}
+async function cambiarPassword(){
+  const actual=document.getElementById('pass-actual').value;
+  const nueva=document.getElementById('pass-nueva').value;
+  const confirmar=document.getElementById('pass-confirmar').value;
+  const alertEl=document.getElementById('pass-alert');
+  alertEl.classList.add('hidden');
+  if(!actual||!nueva||!confirmar){alertEl.className='alert alert-error';alertEl.textContent='Completa todos los campos.';alertEl.classList.remove('hidden');return;}
+  if(nueva!==confirmar){alertEl.className='alert alert-error';alertEl.textContent='Las contrasenas nuevas no coinciden.';alertEl.classList.remove('hidden');return;}
+  if(nueva.length<4){alertEl.className='alert alert-error';alertEl.textContent='Minimo 4 caracteres.';alertEl.classList.remove('hidden');return;}
+  setLoading(true);
+  const hashActual=await sha256(actual);
+  const{data,error}=await db.from('usuarios').select('id').eq('id',usuarioActual.id).eq('password_hash',hashActual).single();
+  if(error||!data){setLoading(false);alertEl.className='alert alert-error';alertEl.textContent='La contrasena actual es incorrecta.';alertEl.classList.remove('hidden');return;}
+  const hashNueva=await sha256(nueva);
+  const{error:updErr}=await db.from('usuarios').update({password_hash:hashNueva}).eq('id',usuarioActual.id);
+  setLoading(false);
+  if(updErr){alertEl.className='alert alert-error';alertEl.textContent='Error: '+updErr.message;alertEl.classList.remove('hidden');return;}
+  alertEl.className='alert alert-success';alertEl.textContent='Contrasena cambiada exitosamente.';alertEl.classList.remove('hidden');
+  setTimeout(()=>cerrarModalPass(),2000);
+}
+
 async function verMisPreguntas(){
   setLoading(true);
-  const{data}=await db.from('preguntas').select('*')
-    .eq('usuario_id',usuarioActual.id).order('created_at',{ascending:false});
+  const{data}=await db.from('preguntas').select('*').eq('usuario_id',usuarioActual.id).order('created_at',{ascending:false});
   setLoading(false);
   document.getElementById('mis-p-nombre').textContent=usuarioActual.nombre;
   const el=document.getElementById('mis-preguntas-lista');
-  if(!data||!data.length){
-    el.innerHTML='<p style="color:var(--text3);font-size:14px;padding:2rem 0;text-align:center;">A\u00FAn no has enviado preguntas.</p>';
-    show('mis-preguntas-screen');return;
-  }
-  // Agrupar por grado+area
+  if(!data||!data.length){el.innerHTML='<p style="color:var(--text3);font-size:14px;padding:2rem 0;text-align:center;">Aun no has enviado preguntas.</p>';show('mis-preguntas-screen');return;}
   const grupos={};
-  data.forEach(p=>{
-    const k=p.grado+'||'+p.area;
-    if(!grupos[k])grupos[k]=[];
-    grupos[k].push(p);
-  });
+  data.forEach(p=>{const k=p.grado+'||'+p.area;if(!grupos[k])grupos[k]=[];grupos[k].push(p);});
   el.innerHTML=Object.entries(grupos).map(([k,qs])=>{
     const[grado,area]=k.split('||');
-    const ids=qs.map(q=>q.id);
+    const ids=qs.map(q=>q.id).join(',');
     return `<div style="margin-bottom:1.25rem;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-        <div style="font-size:13px;font-weight:700;color:var(--text);">${grado} \u2014 ${area}</div>
-        <button data-ids="${ids.join(',')}" data-label="${area} de ${grado}" onclick="elimDocenteBtn(this)"
+        <div style="font-size:13px;font-weight:700;color:var(--text);">${grado} - ${area}</div>
+        <button data-ids="${ids}" data-label="${area} de ${grado}" onclick="elimDocenteBtn(this)"
           style="font-size:11px;padding:3px 10px;border:0.5px solid var(--red);border-radius:20px;background:none;color:var(--red);cursor:pointer;">
           Eliminar todos
         </button>
@@ -874,11 +921,11 @@ async function verMisPreguntas(){
           <div class="q-head">
             <span style="font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap;">P.${i+1}</span>
             <div class="q-txt">${q.enunciado}</div>
-            <button data-ids="${q.id}" data-label="" onclick="elimDocenteBtn(this)" class="btn-remove" title="Eliminar">\u2715</button>
+            <button data-ids="${q.id}" data-label="" onclick="elimDocenteBtn(this)" class="btn-remove" title="Eliminar">x</button>
           </div>
           <div class="q-alts">
             ${['a','b','c','d','e'].filter(l=>q['alternativa_'+l]).map(l=>`
-              <div class="q-alt ${l===q.respuesta_correcta?'ok':''}">${l.toUpperCase()}) ${q['alternativa_'+l]}${l===q.respuesta_correcta?' \u2713':''}</div>`).join('')}
+              <div class="q-alt ${l===q.respuesta_correcta?'ok':''}">${l.toUpperCase()}) ${q['alternativa_'+l]}${l===q.respuesta_correcta?' V':''}</div>`).join('')}
           </div>
         </div>`).join('')}
     </div>`;
@@ -887,8 +934,8 @@ async function verMisPreguntas(){
 }
 
 async function elimDocente(ids,nombre){
-  const msg=nombre?'\u00BFEliminar todas las preguntas de "'+nombre+'"?':'\u00BFEliminar esta pregunta?';
-  if(!confirm(msg+'\n\nEsta acci\u00F3n no se puede deshacer.'))return;
+  const msg=nombre?'Eliminar todas las preguntas de "'+nombre+'"?':'Eliminar esta pregunta?';
+  if(!confirm(msg))return;
   setLoading(true);
   const{error}=await db.from('preguntas').delete().in('id',ids);
   setLoading(false);
@@ -896,118 +943,60 @@ async function elimDocente(ids,nombre){
   ids.forEach(id=>document.getElementById('dqrow-'+id)?.remove());
 }
 
-function volverFormulario(){show('docente-screen');}
-
-function elimGrupoBtn(btn){
-  const ids=btn.dataset.ids.split(',').filter(Boolean);
-  const label=btn.dataset.label;
-  elimGrupo(ids,label);
-}
 function elimDocenteBtn(btn){
   const ids=btn.dataset.ids.split(',').filter(Boolean);
-  const label=btn.dataset.label;
-  elimDocente(ids,label||null);
+  const label=btn.dataset.label||null;
+  elimDocente(ids,label);
 }
+
+function volverFormulario(){show('docente-screen');}
+
 async function generarClaves(){
   const grado=document.getElementById('gen-grado').value;
   if(!grado){showAlert('gen-alert','error','Selecciona un grado.');return;}
   const pregs=allPreguntas.filter(p=>p.grado===grado);
   if(!pregs.length){showAlert('gen-alert','error','No hay preguntas para este grado.');return;}
-
   const btn=document.getElementById('btn-claves');
   btn.innerHTML='<span class="spinner spinner-dark"></span>Generando...';btn.disabled=true;
-
   try{
-    // Ordenar igual que el examen: por area en orden oficial
     const porArea={};
     pregs.forEach(p=>{if(!porArea[p.area])porArea[p.area]=[];porArea[p.area].push(p);});
-
-    let cuerpo='';
-    let num=1;
-
-    // Titulo
-    cuerpo+=parrafo('CLAVE DE RESPUESTAS — '+grado.toUpperCase(),{bold:true,big:true,center:true});
-    cuerpo+=parrafo('Examen de Admisión 2026',{center:true});
+    let cuerpo='';let num=1;
+    cuerpo+=parrafo('CLAVE DE RESPUESTAS - '+grado.toUpperCase(),{bold:true,big:true,center:true});
+    cuerpo+=parrafo('Examen de Admision 2026',{center:true});
     cuerpo+=parrafoVacio();
-
-    // Encabezado tabla
-    cuerpo+=`<w:p><w:pPr><w:jc w:val="both"/><w:spacing w:after="60"/></w:pPr>
-      <w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
-        <w:b/><w:bCs/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr>
-        <w:t xml:space="preserve">N° de pregunta      Respuesta correcta</w:t></w:r></w:p>`;
-    cuerpo+=`<w:p><w:pPr><w:spacing w:after="40"/></w:pPr>
-      <w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
-        <w:b/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr>
-        <w:t>${'_'.repeat(40)}</w:t></w:r></w:p>`;
-
+    cuerpo+=parrafo('N de pregunta          Respuesta correcta',{bold:true});
+    cuerpo+=parrafo('_'.repeat(45));
+    cuerpo+=parrafoVacio();
     AREAS_ORDEN.forEach(area=>{
       if(!porArea[area])return;
-      // Area label
       cuerpo+=parrafo(area.toUpperCase(),{bold:true});
       porArea[area].sort((a,b)=>a.orden-b.orden).forEach(p=>{
         const letra=p.respuesta_correcta.toUpperCase();
         cuerpo+=`<w:p><w:pPr><w:jc w:val="both"/><w:spacing w:after="60"/></w:pPr>
           <w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>
             <w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr>
-            <w:t xml:space="preserve">Pregunta ${String(num).padStart(3,' ')}               ${letra}</w:t></w:r></w:p>`;
+            <w:t xml:space="preserve">Pregunta ${String(num).padStart(3,' ')}                    ${letra}</w:t></w:r></w:p>`;
         num++;
       });
       cuerpo+=parrafoVacio();
     });
-
-    // Crear ZIP
+    const docXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${cuerpo}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1417" w:right="1800" w:bottom="1417" w:left="1800"/><w:cols w:num="1"/></w:sectPr></w:body></w:document>`;
     const zip=new JSZip();
-    const docXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
-  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
-<w:body>
-${cuerpo}
-<w:sectPr>
-  <w:pgSz w:w="11906" w:h="16838"/>
-  <w:pgMar w:top="1417" w:right="991" w:bottom="1417" w:left="993" w:header="708" w:footer="708" w:gutter="0"/>
-  <w:cols w:num="1"/>
-</w:sectPr>
-</w:body>
-</w:document>`;
-
-    zip.file('[Content_Types].xml',
-      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
-  <Default Extension="xml" ContentType="application/xml"/>
-  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
-</Types>`);
-    zip.file('_rels/.rels',
-      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
-</Relationships>`);
-    zip.file('word/_rels/document.xml.rels',
-      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-</Relationships>`);
-    zip.file('word/document.xml', docXml);
-
+    zip.file('[Content_Types].xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
+    zip.file('_rels/.rels','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+    zip.file('word/_rels/document.xml.rels','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>');
+    zip.file('word/document.xml',docXml);
     const blob=await zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
     const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url;
-    a.download=`Clave_${grado.replace(/[°\s\.]/g,'_')}_2026.docx`;
-    a.click();
-    URL.revokeObjectURL(url);
-    showAlert('gen-alert','success',`Clave de ${grado} descargada — ${num-1} respuestas.`);
-  }catch(e){
-    showAlert('gen-alert','error','Error: '+e.message);
-  }
-  btn.innerHTML='Descargar clave de respuestas';btn.disabled=false;
+    const a=document.createElement('a');a.href=url;
+    a.download='Clave_'+grado.replace(/[^a-zA-Z0-9]/g,'_')+'_2026.docx';
+    a.click();URL.revokeObjectURL(url);
+    showAlert('gen-alert','success','Clave de '+grado+' descargada - '+( num-1)+' respuestas.');
+  }catch(e){showAlert('gen-alert','error','Error: '+e.message);}
+  btn.innerHTML='Clave de respuestas';btn.disabled=false;
 }
 
-function showAlert(id,type,msg){
-  const el=document.getElementById(id);
-  el.className=`alert alert-${type==='error'?'error':type==='success'?'success':'info'}`;
-  el.textContent=msg;el.classList.remove('hidden');
-  if(type!=='success')setTimeout(()=>el.classList.add('hidden'),7000);
-}
 function setLoading(v){document.getElementById('loading').classList.toggle('hidden',!v);}
 init();
 </script>
