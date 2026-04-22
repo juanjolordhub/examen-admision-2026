@@ -273,12 +273,18 @@
     <div class="card">
       <div class="card-title">Registrar nuevo docente</div>
       <div class="field"><label>Nombre completo</label><input type="text" id="nuevo-nombre" placeholder="Prof. Ana Torres"></div>
-      <div class="field"><label>Contraseña para el docente</label>
+      <div class="field"><label>Contrasena</label>
         <input type="text" id="nuevo-pass" placeholder="Ej: Bio2026">
-        <div class="hint">El docente usará esta contraseña para ingresar. Puedes dársela por WhatsApp.</div>
+        <div class="hint">El usuario usara esta contrasena para ingresar.</div>
+      </div>
+      <div class="field"><label>Privilegios</label>
+        <select id="nuevo-rol">
+          <option value="docente">Docente (solo sube preguntas)</option>
+          <option value="admin">Administrador (ve todo, genera examenes)</option>
+        </select>
       </div>
       <div id="nuevo-alert" class="hidden"></div>
-      <button class="btn btn-primary" onclick="crearDocente()">Registrar docente</button>
+      <button class="btn btn-primary" onclick="crearDocente()">Registrar</button>
     </div>
   </div>
 
@@ -342,7 +348,7 @@ async function init(){
   const sess=sessionStorage.getItem('usuario');
   if(sess){
     usuarioActual=JSON.parse(sess);
-    if(usuarioActual.rol==='director'){show('admin-screen');await cargarAdmin();}
+    if(usuarioActual.rol==='director'||usuarioActual.rol==='admin'){show('admin-screen');await cargarAdmin();}
     else mostrarDocente();
     return;
   }
@@ -381,7 +387,7 @@ async function doLogin(){
   if(error||!data){err.textContent='Contraseña incorrecta.';err.classList.remove('hidden');return;}
   usuarioActual=data;
   sessionStorage.setItem('usuario',JSON.stringify(data));
-  if(data.rol==='director'){show('admin-screen');await cargarAdmin();}
+  if(data.rol==='director'||data.rol==='admin'){show('admin-screen');await cargarAdmin();}
   else mostrarDocente();
 }
 
@@ -569,7 +575,7 @@ async function cargarAdmin(){
   setLoading(true);
   const[{data:docs},{data:pregs}]=await Promise.all([
     db.from('usuarios').select('*').eq('rol','docente').order('nombre'),
-    db.from('preguntas').select('*').order('nivel,grado,area,orden')
+    db.from('preguntas').select('*').order('nivel').order('grado').order('area').order('orden').limit(5000)
   ]);
   setLoading(false);
   allUsuarios=docs||[];allPreguntas=pregs||[];
@@ -698,7 +704,7 @@ function renderDocentes(usuarios,preguntas){
       <div class="avatar">${ini}</div>
       <div class="user-info">
         <div class="user-name">${u.nombre}</div>
-        <div class="user-sub">${n} pregunta${n!==1?'s':''} enviadas</div>
+        <div class="user-sub">${u.rol==='admin'?'Administrador':'Docente'} &middot; ${n} pregunta${n!==1?'s':''} enviadas</div>
       </div>
       <span class="badge badge-${n>0?'green':'amber'}">${n>0?'Enviado':'Pendiente'}</span>
     </div>`;
@@ -712,7 +718,8 @@ async function crearDocente(){
   if(!pass){showAlert('nuevo-alert','error','Define una contraseña.');return;}
   setLoading(true);
   const hash=await sha256(pass);
-  const{data,error}=await db.from('usuarios').insert({nombre,rol:'docente',password_hash:hash}).select().single();
+  const rol=document.getElementById('nuevo-rol').value;
+  const{data,error}=await db.from('usuarios').insert({nombre,rol,password_hash:hash}).select().single();
   setLoading(false);
   if(error){showAlert('nuevo-alert','error','Error: '+error.message);return;}
   showAlert('nuevo-alert','success',`Docente "${nombre}" registrado. Contraseña: ${pass}`);
