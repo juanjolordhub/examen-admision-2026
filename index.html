@@ -696,20 +696,72 @@ function actualizarStats(){
 function renderDocentes(usuarios,preguntas){
   const el=document.getElementById('lista-docentes');
   const cnt={};preguntas.forEach(p=>{cnt[p.usuario_id]=(cnt[p.usuario_id]||0)+1;});
-  if(!usuarios.length){el.innerHTML='<p style="color:var(--text3);font-size:13px;">No hay docentes.</p>';return;}
+  if(!usuarios.length){el.innerHTML='<p style="color:var(--text3);font-size:13px;">No hay docentes registrados.</p>';return;}
   el.innerHTML=usuarios.map(u=>{
     const ini=u.nombre.split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
     const n=cnt[u.id]||0;
-    return `<div class="user-row">
+    const esAdmin=u.rol==='admin';
+    const rolLabel=esAdmin?'Administrador':'Docente';
+    const rolBtnLabel=esAdmin?'Quitar admin':'Hacer admin';
+    const rolNuevo=esAdmin?'docente':'admin';
+    return `<div class="user-row" id="urow-${u.id}">
       <div class="avatar">${ini}</div>
-      <div class="user-info">
+      <div class="user-info" style="min-width:0;">
         <div class="user-name">${u.nombre}</div>
-        <div class="user-sub">${u.rol==='admin'?'Administrador':'Docente'} &middot; ${n} pregunta${n!==1?'s':''} enviadas</div>
+        <div class="user-sub">${rolLabel} &middot; ${n} pregunta${n!==1?'s':''} enviadas</div>
       </div>
-      <span class="badge badge-${n>0?'green':'amber'}">${n>0?'Enviado':'Pendiente'}</span>
+      <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
+        <span class="badge badge-${n>0?'green':'amber'}">${n>0?'Enviado':'Pendiente'}</span>
+        <button data-uid="${u.id}" data-rol="${rolNuevo}" data-nombre="${u.nombre}" onclick="cambiarRol(this)"
+          style="font-size:11px;padding:3px 9px;border:0.5px solid var(--blue);border-radius:20px;background:none;color:var(--blue);cursor:pointer;white-space:nowrap;">
+          ${rolBtnLabel}
+        </button>
+        <button data-uid="${u.id}" data-nombre="${u.nombre}" onclick="eliminarUsuario(this)"
+          style="font-size:11px;padding:3px 9px;border:0.5px solid var(--red);border-radius:20px;background:none;color:var(--red);cursor:pointer;white-space:nowrap;">
+          Eliminar
+        </button>
+      </div>
     </div>`;
   }).join('');
 }
+
+async function cambiarRol(btn){
+  const uid=btn.dataset.uid;
+  const rol=btn.dataset.rol;
+  const nombre=btn.dataset.nombre;
+  const label=rol==='admin'?'administrador':'docente';
+  if(!confirm('Cambiar a "'+nombre+'" a '+label+'?'))return;
+  setLoading(true);
+  const{error}=await db.from('usuarios').update({rol}).eq('id',uid);
+  setLoading(false);
+  if(error){alert('Error: '+error.message);return;}
+  // Update local data and re-render
+  const u=allUsuarios.find(x=>x.id===uid);
+  if(u) u.rol=rol;
+  renderDocentes(allUsuarios,allPreguntas);
+  // Update login dropdown
+  const opt=document.querySelector(`#login-nombre option[value="${uid}"]`);
+  if(opt) opt.textContent=nombre+(rol==='director'?' (Director)':'');
+}
+
+async function eliminarUsuario(btn){
+  const uid=btn.dataset.uid;
+  const nombre=btn.dataset.nombre;
+  if(!confirm('Eliminar a "'+nombre+'" del sistema?\n\nSus preguntas tambien seran eliminadas. Esta accion no se puede deshacer.'))return;
+  setLoading(true);
+  const{error}=await db.from('usuarios').delete().eq('id',uid);
+  setLoading(false);
+  if(error){alert('Error: '+error.message);return;}
+  allUsuarios=allUsuarios.filter(u=>u.id!==uid);
+  allPreguntas=allPreguntas.filter(p=>p.usuario_id!==uid);
+  renderDocentes(allUsuarios,allPreguntas);
+  actualizarStats();
+  // Remove from login dropdown
+  const opt=document.querySelector(`#login-nombre option[value="${uid}"]`);
+  if(opt) opt.remove();
+  document.getElementById('stat-doc').textContent=allUsuarios.length;
+}
+
 
 async function crearDocente(){
   const nombre=document.getElementById('nuevo-nombre').value.trim();
