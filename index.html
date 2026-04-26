@@ -301,6 +301,7 @@
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
         <button class="btn btn-primary" id="btn-generar" onclick="generarDocx()" style="width:auto;padding:10px 24px;">Generar examen .docx</button>
         <button class="btn" id="btn-claves" onclick="generarClaves()" style="width:auto;padding:10px 24px;border-color:var(--green);color:var(--green);">Clave de respuestas</button>
+        <button class="btn" id="btn-pdf" onclick="generarPDF()" style="width:auto;padding:10px 24px;border-color:var(--purple);color:var(--purple);">Descargar PDF</button>
       </div>
     </div>
     <p style="font-size:12px;color:var(--text3);margin-top:8px;">El archivo se descargará listo. Solo necesitas agregar la portada.</p>
@@ -326,6 +327,7 @@
 <div id="loading" class="loading-overlay hidden">Cargando...</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 const SB_URL='https://wpgooddmmzzjfvocwidp.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndwZ29vZGRtbXp6amZ2b2N3aWRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5Mzc4OTksImV4cCI6MjA5MTUxMzg5OX0.YNnKcte67kBAdQM60vhrhtaHugqlXuebuFdchYOAOHU';
@@ -924,7 +926,7 @@ async function generarDocx(){
         ['a','b','c','d','e'].forEach(l=>{
           const txt=p['alternativa_'+l];
           if(!txt)return;
-          cuerpo+=parrafo(`${l}) ${txt}`,{noSpace:false});
+          cuerpo+=parrafo(`${l.toUpperCase()}. ${txt}`,{noSpace:false});
         });
         cuerpo+=parrafoVacio();
         numPregunta++;
@@ -935,6 +937,41 @@ async function generarDocx(){
     const mimeMap={png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',gif:'image/gif',bmp:'image/bmp',webp:'image/webp'};
     const imgRelsXml=imgRels.map(r=>`<Relationship Id="${r.rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/${r.rId}.${r.ext}"/>`).join('\n');
 
+    // A4 vertical, 1 columna para todos los grados
+    // Margenes del formato oficial: top=1404, right=1133, bottom=1417, left=1134
+    const pgSzContenido  = '<w:pgSz w:w="11906" w:h="16838"/>';
+    const pgMarContenido = '<w:pgMar w:top="1404" w:right="1133" w:bottom="1417" w:left="1134" w:header="708" w:footer="0" w:gutter="0"/>';
+    const colsContenido  = '<w:cols w:space="708"/>';
+
+    // Pagina de portada en blanco (seccion propia antes del contenido)
+    const portadaXml=`<w:p>
+  <w:pPr>
+    <w:sectPr>
+      <w:pgSz w:w="11906" w:h="16838"/>
+      <w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134"/>
+      <w:cols w:space="708"/>
+    </w:sectPr>
+  </w:pPr>
+</w:p>`;
+
+    // Bloque de indicaciones
+    const indicaciones=[
+      'Lee cuidadosamente cada pregunta antes de responder.',
+      'Llena la hoja de respuesta con lapiz (opcionalmente puede ser con lapicero negro o azul).',
+      'Selecciona solo una alternativa (A, B, C o D) por pregunta y marca la hoja de respuestas.',
+      'Entrega la hoja de respuesta al finalizar el examen.'
+    ];
+    let indicXml='';
+    indicXml+=`<w:p><w:pPr><w:jc w:val="both"/><w:spacing w:after="80"/></w:pPr>
+      <w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:b/><w:bCs/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr>
+        <w:t>INDICACIONES:</w:t></w:r></w:p>`;
+    indicaciones.forEach((ind,i)=>{
+      indicXml+=`<w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="1"/></w:numPr><w:jc w:val="both"/><w:spacing w:after="60"/></w:pPr>
+        <w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr>
+          <w:t xml:space="preserve">${xmlEscape(ind)}</w:t></w:r></w:p>`;
+    });
+    indicXml+=parrafoVacio();
+
     const docXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
   xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
@@ -942,16 +979,17 @@ async function generarDocx(){
   xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
   xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
 <w:body>
+${portadaXml}
+${indicXml}
 ${cuerpo}
 <w:sectPr>
-  <w:pgSz w:w="11906" w:h="16838"/>
-  <w:pgMar w:top="1417" w:right="991" w:bottom="1417" w:left="993" w:header="708" w:footer="708" w:gutter="0"/>
-  <w:cols w:num="2" w:sep="1" w:space="709"/>
+  ${pgSzContenido}
+  ${pgMarContenido}
+  ${colsContenido}
   <w:docGrid w:linePitch="360"/>
 </w:sectPr>
 </w:body>
 </w:document>`;
-
     const zip=new JSZip();
 
     // Content types - incluir tipos de imagen usados
@@ -1143,6 +1181,156 @@ async function generarClaves(){
     showAlert('gen-alert','success','Clave de '+grado+' descargada - '+( num-1)+' respuestas.');
   }catch(e){showAlert('gen-alert','error','Error: '+e.message);}
   btn.innerHTML='Clave de respuestas';btn.disabled=false;
+}
+
+async function generarPDF(){
+  const grado=document.getElementById('gen-grado').value;
+  if(!grado){showAlert('gen-alert','error','Selecciona un grado.');return;}
+  const pregs=allPreguntas.filter(p=>p.grado===grado);
+  if(!pregs.length){showAlert('gen-alert','error','No hay preguntas para este grado.');return;}
+
+  const btn=document.getElementById('btn-pdf');
+  btn.innerHTML='<span class="spinner spinner-dark"></span>Generando PDF...';btn.disabled=true;
+
+  try{
+    const{jsPDF}=window.jspdf;
+    const norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+    const gradoNorm=grado.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+    const esVertical=['1 primaria','2 primaria','3 primaria'].some(g=>gradoNorm.includes(g));
+
+    const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    const PW=210; const PH=297;
+    const ML=20; const MR=20; const MT=20; const MB=20;
+    const TW=PW-ML-MR;
+    const lineH=7; const titleSize=14; const areaSize=11; const bodySize=10; const altSize=9.5;
+
+    // Pagina 1 en blanco (portada)
+    doc.addPage();
+
+    // Funcion para escribir texto con wrap
+    function writeText(text,x,y,opts={}){
+      const size=opts.size||bodySize;
+      const bold=opts.bold||false;
+      const maxW=opts.maxW||TW;
+      doc.setFontSize(size);
+      doc.setFont('helvetica', bold?'bold':'normal');
+      const lines=doc.splitTextToSize(text,maxW);
+      doc.text(lines,x,y,{align:opts.align||'left'});
+      return lines.length*(size*0.4);
+    }
+
+    let curY=MT;
+    let numPregunta=1;
+
+    // Titulo del grado
+    doc.setFontSize(titleSize);
+    doc.setFont('helvetica','bold');
+    const gradoLines=doc.splitTextToSize(grado.toUpperCase(),TW);
+    doc.text(gradoLines,PW/2,curY,{align:'center'});
+    curY+=gradoLines.length*6+6;
+
+    const porArea={};
+    pregs.forEach(p=>{if(!porArea[p.area])porArea[p.area]=[];porArea[p.area].push(p);});
+    const areasEnDatos=Object.keys(porArea);
+    const areasOrdenadas=[
+      ...AREAS_ORDEN.filter(a=>areasEnDatos.some(b=>norm(b)===norm(a))),
+      ...areasEnDatos.filter(a=>!AREAS_ORDEN.some(b=>norm(b)===norm(a)))
+    ];
+
+    // Pre-cargar imagenes
+    const imgDataPdf={};
+    const pregsConImg=pregs.filter(p=>p.imagen_url);
+    btn.innerHTML='<span class="spinner spinner-dark"></span>Descargando imagenes...';
+    for(const p of pregsConImg){
+      try{
+        const resp=await fetch(p.imagen_url);
+        if(!resp.ok)continue;
+        const blob=await resp.blob();
+        const b64=await new Promise(res=>{
+          const r=new FileReader();
+          r.onload=e=>res(e.target.result);
+          r.onerror=()=>res(null);
+          r.readAsDataURL(blob);
+        });
+        if(b64) imgDataPdf[p.id]=b64;
+      }catch(e){}
+    }
+
+    btn.innerHTML='<span class="spinner spinner-dark"></span>Construyendo PDF...';
+
+    function checkPage(needed){
+      if(curY+needed>PH-MB){
+        doc.addPage();
+        curY=MT;
+      }
+    }
+
+    areasOrdenadas.forEach(areaRef=>{
+      const areaKey=areasEnDatos.find(b=>norm(b)===norm(areaRef))||areaRef;
+      if(!porArea[areaKey])return;
+
+      // Encabezado area
+      checkPage(12);
+      doc.setFontSize(areaSize);
+      doc.setFont('helvetica','bold');
+      doc.text(areaKey.toUpperCase(),ML,curY);
+      curY+=6;
+
+      porArea[areaKey].sort((a,b)=>a.orden-b.orden).forEach(p=>{
+        // Enunciado
+        doc.setFontSize(bodySize);
+        doc.setFont('helvetica','bold');
+        const enuncLines=doc.splitTextToSize(numPregunta+'. '+p.enunciado, TW);
+        const enuncH=enuncLines.length*5;
+        checkPage(enuncH+4);
+        doc.text(enuncLines,ML,curY);
+        curY+=enuncH+2;
+
+        // Imagen si existe
+        if(imgDataPdf[p.id]){
+          const imgH=40; const imgW=60;
+          checkPage(imgH+4);
+          try{
+            doc.addImage(imgDataPdf[p.id],'',ML,curY,imgW,imgH);
+            curY+=imgH+3;
+          }catch(e){}
+        }
+
+        // Alternativas
+        doc.setFontSize(altSize);
+        doc.setFont('helvetica','normal');
+        ['a','b','c','d','e'].forEach(l=>{
+          const txt=p['alternativa_'+l];
+          if(!txt)return;
+          const altLines=doc.splitTextToSize(l+') '+txt,TW-6);
+          const altH=altLines.length*4.5;
+          checkPage(altH+2);
+          doc.text(altLines,ML+4,curY);
+          curY+=altH+1.5;
+        });
+        curY+=4;
+        numPregunta++;
+      });
+      curY+=3;
+    });
+
+    // Reordenar paginas para folleto (booklet imposition)
+    // La primera pagina ya es la portada en blanco
+    // Para folleto: imprimir doble cara, doblar al medio
+    // jsPDF no reordena paginas automaticamente para booklet
+    // pero configuramos el PDF para impresion doble cara
+    doc.setProperties({
+      title:'Examen '+grado+' 2026',
+      creator:'Sistema Admision 2026'
+    });
+
+    const fname='Examen_'+grado.replace(/[^a-zA-Z0-9]/g,'_')+'_2026.pdf';
+    doc.save(fname);
+    showAlert('gen-alert','success','PDF de '+grado+' descargado. Al imprimir selecciona "Folleto" o "Cuadernillo" en las opciones de impresion.');
+  }catch(e){
+    showAlert('gen-alert','error','Error al generar PDF: '+e.message);
+  }
+  btn.innerHTML='Descargar PDF';btn.disabled=false;
 }
 
 function setLoading(v){document.getElementById('loading').classList.toggle('hidden',!v);}
