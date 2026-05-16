@@ -2102,8 +2102,11 @@ let studMgrNames=[];
 let studMgrCtx={grado:'',seccion:''};
 
 async function renderStudentManager(){
-  const grado=document.getElementById('sel-grado').value;
-  const seccion=document.getElementById('sel-seccion').value;
+  // Use independent mgr selectors if available, else fall back to main context
+  const mgrGrado = document.getElementById('mgr-grado');
+  const mgrSeccion = document.getElementById('mgr-seccion');
+  const grado = mgrGrado?.value || studMgrCtx.grado || document.getElementById('sel-grado').value;
+  const seccion = mgrSeccion?.value || studMgrCtx.seccion || document.getElementById('sel-seccion').value;
   studMgrCtx={grado,seccion};
   document.getElementById('stud-mgr-content').innerHTML='<div class="empty">Cargando estudiantes...</div>';
 
