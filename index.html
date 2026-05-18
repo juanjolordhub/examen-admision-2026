@@ -204,7 +204,30 @@
   <button class="btn-add" onclick="agregarPregunta()">+ Agregar otra pregunta</button>
   <div class="btn-row">
     <button class="btn" onclick="verMisPreguntas()">Ver mis preguntas</button>
+    <button class="btn" onclick="mostrarGenerarDocente()" style="border-color:var(--purple);color:var(--purple);">Generar examen</button>
     <button class="btn btn-primary" id="btn-enviar" onclick="enviarPreguntas()" style="width:auto;padding:10px 30px;">Enviar preguntas</button>
+  </div>
+</div>
+
+<!-- GENERAR EXAMEN DOCENTE -->
+<div id="generar-docente-screen" class="page hidden">
+  <div class="topbar">
+    <div class="t-icon" style="background:var(--purple)"><svg viewBox="0 0 24 24" fill="white"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
+    <div class="t-info"><div class="t-title">Generar examen</div><div class="t-sub">Descarga el examen en Word o PDF</div></div>
+    <button class="logout-btn" onclick="show('docente-screen')">Volver</button>
+  </div>
+  <div class="gen-card">
+    <div class="gen-title">Generar examen en Word (.docx)</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:12px;">Selecciona el grado para generar el examen completo.</p>
+    <div class="field"><label>Selecciona el grado o seccion</label>
+      <select id="doc-gen-grado" style="margin-bottom:10px;"><option value="">-- Elige un grado --</option></select>
+    </div>
+    <div id="doc-gen-preview" class="hidden" style="margin-bottom:12px;padding:10px;background:var(--bg2);border-radius:var(--r);font-size:13px;color:var(--text2);"></div>
+    <div id="doc-gen-alert" class="hidden"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-primary" id="doc-btn-generar" onclick="docGenerarDocx()" style="width:auto;padding:10px 24px;">Generar examen .docx</button>
+      <button class="btn" id="doc-btn-pdf" onclick="docGenerarPDF()" style="width:auto;padding:10px 24px;border-color:var(--purple);color:var(--purple);">Descargar PDF</button>
+    </div>
   </div>
 </div>
 
@@ -254,6 +277,7 @@
     <button class="tab-btn" onclick="adminTab('docentes')">Docentes</button>
     <button class="tab-btn" onclick="adminTab('nuevo')">+ Nuevo docente</button>
     <button class="tab-btn" onclick="adminTab('generar')">Generar examen</button>
+    <button class="tab-btn" onclick="adminTab('subir')">Subir preguntas</button>
   </div>
 
   <!-- TAB PREGUNTAS -->
@@ -305,6 +329,41 @@
       </div>
     </div>
     <p style="font-size:12px;color:var(--text3);margin-top:8px;">El archivo se descargará listo. Solo necesitas agregar la portada.</p>
+  </div>
+
+  <!-- TAB SUBIR PREGUNTAS (Director) -->
+  <div id="tab-subir" class="hidden">
+    <div class="card">
+      <div class="card-title">Subir preguntas como director</div>
+      <div class="field">
+        <label>Area / Curso</label>
+        <select id="dir-area">
+          <option value="">-- Selecciona el area --</option>
+          <option>Comunicacion</option><option>Lenguaje</option><option>Literatura</option><option>Plan Lector</option>
+          <option>Razonamiento Verbal</option><option>Aritmetica</option><option>Algebra</option>
+          <option>Geometria</option><option>Trigonometria</option><option>Razonamiento Matematico</option>
+          <option>Ciencia y Tecnologia</option><option>Fisica</option><option>Quimica</option><option>Biologia</option>
+          <option>Personal Social</option><option>Historia</option><option>Geografia</option><option>Ingles</option><option>Tutoria</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Nivel educativo</label>
+        <div class="chip-row">
+          <button class="chip" id="dir-chip-prim" onclick="dirSelNivel('primaria')">Primaria</button>
+          <button class="chip" id="dir-chip-sec" onclick="dirSelNivel('secundaria')">Secundaria</button>
+        </div>
+      </div>
+      <div class="field hidden" id="dir-campo-grado">
+        <label id="dir-grado-label">Grado</label>
+        <div class="chip-row" id="dir-grado-chips"></div>
+      </div>
+    </div>
+    <div id="dir-preguntas-container"></div>
+    <button class="btn-add" onclick="dirAgregarPregunta()">+ Agregar otra pregunta</button>
+    <div id="dir-alert" class="hidden"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="dir-btn-enviar" onclick="dirEnviarPreguntas()" style="width:auto;padding:10px 30px;">Enviar preguntas</button>
+    </div>
   </div>
 </div>
 
@@ -370,7 +429,7 @@ async function cargarLoginList(){
 }
 
 function show(id){
-  ['login-screen','docente-screen','admin-screen','exito-screen','mis-preguntas-screen'].forEach(s=>
+  ['login-screen','docente-screen','admin-screen','exito-screen','mis-preguntas-screen','generar-docente-screen'].forEach(s=>
     document.getElementById(s).classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
 }
@@ -787,13 +846,15 @@ async function crearDocente(){
 }
 
 function adminTab(name){
-  ['preguntas','docentes','nuevo','generar'].forEach((t,i)=>{
+  ['preguntas','docentes','nuevo','generar','subir'].forEach((t,i)=>{
     document.getElementById('tab-'+t).classList.add('hidden');
     document.querySelectorAll('.tab-btn')[i].classList.remove('active');
   });
-  const idx=['preguntas','docentes','nuevo','generar'].indexOf(name);
+  const idx=['preguntas','docentes','nuevo','generar','subir'].indexOf(name);
   document.getElementById('tab-'+name).classList.remove('hidden');
   document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+  // Auto-add first question when opening subir tab
+  if(name==='subir' && dirPregCount===0) dirAgregarPregunta();
 }
 
 // ── GENERAR DOCX ──
@@ -1202,6 +1263,50 @@ function elimDocenteBtn(btn){
 
 function volverFormulario(){show('docente-screen');}
 
+async function mostrarGenerarDocente(){
+  setLoading(true);
+  var res=await db.from('preguntas').select('*').order('nivel').order('grado').order('area').order('orden').range(0,4999);
+  setLoading(false);
+  var pregs=res.data||[];
+  var grados=[...new Set(pregs.map(function(p){return p.grado;}).filter(Boolean))].sort();
+  var sel=document.getElementById('doc-gen-grado');
+  sel.innerHTML='<option value="">-- Elige un grado --</option>';
+  grados.forEach(function(g){var o=document.createElement('option');o.value=g;o.textContent=g;sel.appendChild(o);});
+  // Store pregs in a temp var for docente generar
+  window._docPregs=pregs;
+  sel.onchange=function(){
+    var grado=sel.value;
+    var prev=document.getElementById('doc-gen-preview');
+    if(!grado){prev.classList.add('hidden');return;}
+    var gPregs=pregs.filter(function(p){return p.grado===grado;});
+    var areas=[...new Set(gPregs.map(function(p){return p.area;}))];
+    prev.innerHTML='<strong>'+grado+'</strong> — '+gPregs.length+' preguntas en '+areas.length+' areas';
+    prev.classList.remove('hidden');
+  };
+  show('generar-docente-screen');
+}
+
+async function docGenerarDocx(){
+  var grado=document.getElementById('doc-gen-grado').value;
+  if(!grado){showAlert('doc-gen-alert','error','Selecciona un grado.');return;}
+  // Temporarily swap allPreguntas
+  var bak=allPreguntas;
+  allPreguntas=window._docPregs||[];
+  document.getElementById('gen-grado').value=grado;
+  await generarDocx();
+  allPreguntas=bak;
+}
+
+async function docGenerarPDF(){
+  var grado=document.getElementById('doc-gen-grado').value;
+  if(!grado){showAlert('doc-gen-alert','error','Selecciona un grado.');return;}
+  var bak=allPreguntas;
+  allPreguntas=window._docPregs||[];
+  document.getElementById('gen-grado').value=grado;
+  await generarPDF();
+  allPreguntas=bak;
+}
+
 async function generarClaves(){
   const grado=document.getElementById('gen-grado').value;
   if(!grado){showAlert('gen-alert','error','Selecciona un grado.');return;}
@@ -1403,6 +1508,126 @@ async function generarPDF(){
     showAlert('gen-alert','error','Error al generar PDF: '+e.message);
   }
   btn.innerHTML='Descargar PDF';btn.disabled=false;
+}
+
+// ── DIRECTOR SUBE PREGUNTAS ──
+var dirNivel=''; var dirGrado=''; var dirPregCount=0; var dirImgFiles={};
+
+function dirSelNivel(nivel){
+  dirNivel=nivel; dirGrado='';
+  document.getElementById('dir-chip-prim').className='chip'+(nivel==='primaria'?' sel-blue':'');
+  document.getElementById('dir-chip-sec').className='chip'+(nivel==='secundaria'?' sel-purple':'');
+  var grados=nivel==='primaria'?GRADOS_PRIM:GRADOS_SEC;
+  document.getElementById('dir-grado-label').textContent=nivel==='primaria'?'Grado':'Seccion';
+  var chips=document.getElementById('dir-grado-chips');
+  chips.innerHTML='';
+  grados.forEach(function(g){
+    var btn=document.createElement('button');
+    btn.className='chip';btn.textContent=g;btn.dataset.g=g;
+    btn.onclick=function(){dirSelGrado(this.dataset.g,this);};
+    chips.appendChild(btn);
+  });
+  document.getElementById('dir-campo-grado').classList.remove('hidden');
+}
+
+function dirSelGrado(g,btn){
+  dirGrado=g;
+  document.querySelectorAll('#dir-grado-chips .chip').forEach(b=>b.className='chip');
+  btn.className='chip '+(dirNivel==='primaria'?'sel-blue':'sel-purple');
+}
+
+function dirAgregarPregunta(){
+  dirPregCount++;
+  var id=dirPregCount;
+  var div=document.createElement('div');
+  div.className='pregunta-bloque';
+  div.id='dir-pregunta-'+id;
+  // Build alternatives
+  var alts=['a','b','c','d'].map(function(l){
+    return '<div class="alt-row" id="dir-ar-'+id+'-'+l+'"><div class="alt-letter">'+l.toUpperCase()+'</div><input type="text" id="dir-p'+id+'-'+l+'" placeholder="Alternativa '+l.toUpperCase()+'"></div>';
+  }).join('');
+  var radios=['a','b','c','d','e'].map(function(l){
+    return '<label class="radio-opt"><input type="radio" name="dir-cor-'+id+'" value="'+l+'" data-pid="'+id+'" data-letra="'+l+'" onchange="dirMarcaCorrecta(this.dataset.pid,this.dataset.letra)"><span>'+l.toUpperCase()+'</span></label>';
+  }).join('');
+  var removeBtn=id>1?'<button class="btn-remove" data-id="'+id+'" onclick="dirEliminarPregunta(this.dataset.id)">x</button>':'';
+  div.innerHTML='<div class="pregunta-head"><span class="num">Pregunta '+id+'</span>'+removeBtn+'</div>'
+    +'<div class="pregunta-body">'
+    +'<div class="field"><label>Enunciado</label><textarea id="dir-p'+id+'-e" placeholder="Escribe el enunciado..."></textarea></div>'
+    +'<div class="field"><label>Imagen (opcional)</label><div class="img-drop"><input type="file" accept="image/*" data-id="'+id+'" onchange="dirOnFile(this.dataset.id,this)"><p>Clic o arrastra imagen</p><div class="img-name hidden" id="dir-fn-'+id+'"></div><img class="img-preview hidden" id="dir-fi-'+id+'"></div></div>'
+    +'<div class="field"><label>Alternativas</label><div class="alt-list">'+alts
+    +'<div class="alt-row" id="dir-ar-'+id+'-e" style="opacity:.5"><div class="alt-letter">E</div><input type="text" id="dir-p'+id+'-e2" placeholder="Alternativa E (opcional)"></div></div></div>'
+    +'<div class="field"><label>Respuesta correcta</label><div class="radio-group">'+radios+'</div></div></div>';
+  document.getElementById('dir-preguntas-container').appendChild(div);
+}
+
+function dirEliminarPregunta(id){document.getElementById('dir-pregunta-'+id)?.remove();delete dirImgFiles[id];}
+
+function dirOnFile(id,input){
+  var file=input.files[0];if(!file)return;
+  dirImgFiles[id]=file;
+  var fn=document.getElementById('dir-fn-'+id);fn.textContent=file.name;fn.classList.remove('hidden');
+  if(file.type.startsWith('image/')){var r=new FileReader();r.onload=function(e){var i=document.getElementById('dir-fi-'+id);i.src=e.target.result;i.classList.remove('hidden');};r.readAsDataURL(file);}
+}
+
+function dirMarcaCorrecta(pid,letra){
+  ['a','b','c','d','e'].forEach(function(l){var row=document.getElementById('dir-ar-'+pid+'-'+l);if(row)row.classList.toggle('correct',l===letra);});
+}
+
+async function dirEnviarPreguntas(){
+  var area=document.getElementById('dir-area').value;
+  var errs=[];
+  if(!area) errs.push('Selecciona el area');
+  if(!dirNivel) errs.push('Selecciona el nivel');
+  if(!dirGrado) errs.push('Selecciona el grado');
+  var bloques=document.querySelectorAll('[id^="dir-pregunta-"]');
+  var preguntas=[];
+  bloques.forEach(function(b,i){
+    var id=b.id.replace('dir-pregunta-','');
+    var enunciado=document.getElementById('dir-p'+id+'-e').value.trim();
+    var a=document.getElementById('dir-p'+id+'-a').value.trim();
+    var bv=document.getElementById('dir-p'+id+'-b').value.trim();
+    var c=document.getElementById('dir-p'+id+'-c').value.trim();
+    var d=document.getElementById('dir-p'+id+'-d').value.trim();
+    var e2=document.getElementById('dir-p'+id+'-e2')?.value.trim()||'';
+    var correcta=document.querySelector('input[name="dir-cor-'+id+'"]:checked')?.value;
+    if(!enunciado) errs.push('Pregunta '+(i+1)+': falta enunciado');
+    if(!a||!bv||!c||!d) errs.push('Pregunta '+(i+1)+': completa 4 alternativas');
+    if(!correcta) errs.push('Pregunta '+(i+1)+': marca la respuesta correcta');
+    preguntas.push({id,enunciado,a,b:bv,c,d,e:e2,correcta});
+  });
+  if(errs.length){showAlert('dir-alert','error',errs.join(' · '));return;}
+  var btn=document.getElementById('dir-btn-enviar');
+  btn.innerHTML='<span class="spinner"></span>Enviando...';btn.disabled=true;
+  try{
+    for(var i=0;i<preguntas.length;i++){
+      var p=preguntas[i];var imagen_url=null;
+      if(dirImgFiles[p.id]){
+        var file=dirImgFiles[p.id];
+        var fname=usuarioActual.id+'/'+Date.now()+'_'+file.name;
+        var upl=await db.storage.from('imagenes-preguntas').upload(fname,file,{upsert:true});
+        if(!upl.error){var pub=db.storage.from('imagenes-preguntas').getPublicUrl(fname);imagen_url=pub.data.publicUrl;}
+      }
+      await db.from('preguntas').insert({
+        usuario_id:usuarioActual.id,area:area,nivel:dirNivel,grado:dirGrado,
+        enunciado:p.enunciado,alternativa_a:p.a,alternativa_b:p.b,alternativa_c:p.c,alternativa_d:p.d,
+        alternativa_e:p.e||null,respuesta_correcta:p.correcta,tiene_imagen:!!imagen_url,imagen_url,orden:i+1
+      });
+    }
+    showAlert('dir-alert','success',preguntas.length+' preguntas de '+area+' para '+dirGrado+' enviadas.');
+    // Reset form
+    dirPregCount=0;dirImgFiles={};dirNivel='';dirGrado='';
+    document.getElementById('dir-preguntas-container').innerHTML='';
+    document.getElementById('dir-area').value='';
+    document.getElementById('dir-chip-prim').className='chip';
+    document.getElementById('dir-chip-sec').className='chip';
+    document.getElementById('dir-campo-grado').classList.add('hidden');
+    // Reload preguntas
+    var res=await db.from('preguntas').select('*').order('nivel').order('grado').order('area').order('orden').range(0,4999);
+    allPreguntas=res.data||[];
+    actualizarStats();
+    renderPreguntas(allPreguntas);
+  }catch(e){showAlert('dir-alert','error','Error: '+e.message);}
+  btn.innerHTML='Enviar preguntas';btn.disabled=false;
 }
 
 function setLoading(v){document.getElementById('loading').classList.toggle('hidden',!v);}
