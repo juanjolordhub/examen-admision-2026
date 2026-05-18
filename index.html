@@ -708,6 +708,14 @@ tr:hover td{background:var(--surf3);}
         <div class="user-av" id="user-av">??</div>
         <div><div class="user-nm" id="user-nm">—</div><div class="user-role" id="user-role">—</div></div>
       </div>
+      <button onclick="showChangePinModal()" title="Cambiar mi PIN"
+        style="padding:5px 10px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:7px;color:white;font-size:11px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;margin-right:4px;">
+        🔑 PIN
+      </button>
+      <button id="pwa-install-btn" onclick="installPWA()"
+        style="display:none;padding:5px 10px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:7px;color:white;font-size:11px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;margin-right:4px;">
+        📲 App
+      </button>
       <button class="logout-btn" onclick="doLogout()">Salir</button>
     </div>
   </div>
@@ -919,6 +927,46 @@ tr:hover td{background:var(--surf3);}
   </div>
 </div>
 
+
+
+<!-- CHANGE OWN PIN MODAL -->
+<div class="overlay" id="change-pin-overlay">
+  <div style="background:var(--surf);border-radius:16px;width:360px;max-width:94vw;padding:28px;box-shadow:var(--sh2);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <h3 style="font-size:16px;font-weight:800;">🔑 Cambiar mi PIN</h3>
+      <button class="modal-close" onclick="document.getElementById('change-pin-overlay').classList.remove('open')">✕</button>
+    </div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">
+      Cambia tu PIN de acceso personal. Mínimo 4 dígitos numéricos.
+    </div>
+    <div class="cf" style="margin-bottom:12px;">
+      <label>PIN actual</label>
+      <input type="password" id="cp-current" placeholder="Tu PIN actual" inputmode="numeric"
+        style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;">
+    </div>
+    <div class="cf" style="margin-bottom:12px;">
+      <label>Nuevo PIN</label>
+      <input type="password" id="cp-new" placeholder="Nuevo PIN (mín. 4 dígitos)" inputmode="numeric"
+        style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;">
+    </div>
+    <div class="cf" style="margin-bottom:20px;">
+      <label>Confirmar nuevo PIN</label>
+      <input type="password" id="cp-confirm" placeholder="Repite el nuevo PIN" inputmode="numeric"
+        style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;">
+    </div>
+    <div id="cp-error" style="font-size:12px;color:var(--c);font-weight:700;margin-bottom:12px;display:none;"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button onclick="document.getElementById('change-pin-overlay').classList.remove('open')"
+        style="padding:8px 16px;background:var(--surf2);border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
+        Cancelar
+      </button>
+      <button onclick="confirmChangePin()"
+        style="padding:8px 20px;background:var(--accent);border:none;border-radius:8px;font-size:13px;font-weight:700;color:white;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
+        Guardar PIN
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- STUDENT PROFILE MODAL -->
 <div class="overlay" id="prof-overlay">
@@ -3574,6 +3622,43 @@ window._hdrLabels = {};
 
 
 
+
+
+// ══════════════════════════════════════════
+//  CAMBIAR PROPIO PIN
+// ══════════════════════════════════════════
+function showChangePinModal(){
+  document.getElementById('cp-current').value='';
+  document.getElementById('cp-new').value='';
+  document.getElementById('cp-confirm').value='';
+  document.getElementById('cp-error').style.display='none';
+  document.getElementById('change-pin-overlay').classList.add('open');
+}
+
+async function confirmChangePin(){
+  const cur  = document.getElementById('cp-current').value.trim();
+  const nw   = document.getElementById('cp-new').value.trim();
+  const conf = document.getElementById('cp-confirm').value.trim();
+  const errEl= document.getElementById('cp-error');
+
+  const showErr=(msg)=>{ errEl.textContent=msg; errEl.style.display='block'; };
+
+  if(!cur){ showErr('Ingresa tu PIN actual'); return; }
+  if(cur !== currentUser.pin){ showErr('El PIN actual no es correcto'); return; }
+  if(!nw||nw.length<4){ showErr('El nuevo PIN debe tener al menos 4 dígitos'); return; }
+  if(!/^\d+$/.test(nw)){ showErr('El PIN debe ser solo números'); return; }
+  if(nw!==conf){ showErr('Los PINs no coinciden'); return; }
+
+  errEl.style.display='none';
+  try{
+    await db.from('docentes').update({pin:nw}).eq('nombre',currentUser.nombre);
+    currentUser.pin=nw;
+    document.getElementById('change-pin-overlay').classList.remove('open');
+    toast('✓ PIN actualizado correctamente','ok');
+  }catch(e){
+    showErr('Error al guardar: '+e.message);
+  }
+}
 
 // ══════════════════════════════════════════
 //  CAMBIAR PIN DE DOCENTE
