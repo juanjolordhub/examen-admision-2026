@@ -634,7 +634,7 @@ function subirOtraVez(){
 // ── ADMIN ──
 async function cargarAdmin(){
   setLoading(true);
-  const[{data:docs},{data:pregs,count:totalPregs}]=await Promise.all([
+  const[{data:docs},{data:pregs}]=await Promise.all([
     db.from('usuarios').select('*').eq('rol','docente').order('nombre'),
     db.from('preguntas').select('*', {count:'exact'}).order('nivel').order('grado').order('area').order('orden').range(0,4999)
   ]);
@@ -642,7 +642,7 @@ async function cargarAdmin(){
   allUsuarios=docs||[];allPreguntas=pregs||[];
   const grados=[...new Set(allPreguntas.map(p=>p.grado).filter(Boolean))].sort();
   document.getElementById('stat-doc').textContent=allUsuarios.length;
-  document.getElementById('stat-preg').textContent=totalPregs||allPreguntas.length;
+  document.getElementById('stat-preg').textContent=allPreguntas.length;
   document.getElementById('stat-grados').textContent=grados.length;
   // Filtro grados
   const fg=document.getElementById('filtro-grado');
@@ -747,7 +747,7 @@ function elimGrupoBtn(btn){
 
 function actualizarStats(){
   const grados=[...new Set(allPreguntas.map(p=>p.grado).filter(Boolean))];
-  document.getElementById('stat-preg').textContent=totalPregs||allPreguntas.length;
+  document.getElementById('stat-preg').textContent=allPreguntas.length;
   document.getElementById('stat-grados').textContent=grados.length;
   const gg=document.getElementById('gen-grado');
   if(gg){gg.innerHTML='<option value="">-- Elige un grado --</option>';grados.sort().forEach(g=>{const o=document.createElement('option');o.value=g;o.textContent=g;gg.appendChild(o);});}
